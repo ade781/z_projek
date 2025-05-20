@@ -86,15 +86,14 @@ const AddNote = () => {
                                 required
                                 style={styles.select}
                             >
-                                <option value="">-- Select Movement --</option>
-                                <option value="">-- Select Movement --</option>
-<option value="Pribadi">Adagio (Pribadi)</option>
-<option value="Pekerjaan">Allegretto (Pekerjaan)</option>
-<option value="Keuangan">Presto (Keuangan)</option>
-<option value="Pendidikan">Andante (Pendidikan)</option>
-<option value="Kesehatan">Scherzo (Kesehatan)</option>
-<option value="Hiburan">Rondo (Hiburan)</option>
-<option value="Lainnya">Nocturne (Lainnya)</option>
+                                <option value="">-- Select Movement --</option>                            
+                                <option value="Pribadi">Adagio (Pribadi)</option>
+                                <option value="Pekerjaan">Allegretto (Pekerjaan)</option>
+                                <option value="Keuangan">Presto (Keuangan)</option>
+                                <option value="Pendidikan">Andante (Pendidikan)</option>
+                                <option value="Kesehatan">Scherzo (Kesehatan)</option>
+                                <option value="Hiburan">Rondo (Hiburan)</option>
+                                <option value="Lainnya">Nocturne (Lainnya)</option>
 
                             </select>
                         </label>
