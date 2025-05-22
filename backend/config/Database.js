@@ -13,4 +13,8 @@ const db = new Sequelize(DB_NAME, DB_USERNAME, DB_PASSWORD, {
     dialect: "mysql",
 });
 
+db.sync({ alter: true })
+    .then(() => console.log("Database synced (alter: true)"))
+    .catch((err) => console.error("Sync failed:", err));
+
 export default db;

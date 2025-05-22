@@ -1,34 +1,165 @@
-### LOGIN
-POST http://localhost:5000/login
+### Create Petualang (Registrasi)
+POST http://localhost:5000/petualang/add-petualang
 Content-Type: application/json
 
 {
-  "email": "tes@tes.com",
-  "password": "123456"
+  "username": "aaa",
+  "password": "aaa",
+  "role": "member",
+  "level": 1,
+  "koin": 0,
+  "jumlah_misi_selesai": 0,
+  "poin_pengalaman": 0
+}
+
+
+###
+
+### Login Petualang
+POST http://localhost:5000/petualang/login
+Content-Type: application/json
+
+{
+  "username": "bbb",
+  "password": "bbb"
 }
 
 ###
 
-### CREATE USER
-POST http://localhost:5000/add-user
+### Get All Petualang (butuh token)
+GET  http://localhost:5000/petualang
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZXR1YWxhbmciOjEsInVzZXJuYW1lIjoiYmJiIiwicm9sZSI6Im1lbWJlciIsImxldmVsIjoxLCJrb2luIjowLCJqdW1sYWhfbWlzaV9zZWxlc2FpIjowLCJwb2luX3BlbmdhbGFtYW4iOjAsImNyZWF0ZWRfYXQiOiIyMDI1LTA1LTIyVDE0OjMzOjIwLjAwMFoiLCJpYXQiOjE3NDc5MjQ0MDgsImV4cCI6MTc0NzkyNDcwOH0.YrY-oQc_UfWEz7mGgJBEvFrTBcHSd6VX6FqY066_SFI
+
+###
+
+### Get Petualang by ID (butuh token)
+GET http://localhost:5000/petualang/5
+Authorization: Bearer 
+
+###
+PUT http://localhost:5000/petualang/edit-petualang/2
+Content-Type: application/json
+Authorization: Bearer 
 
 {
-  "name": "tes",
-  "email": "tes@tess.com",
-  "password": "123456"
+  "koin": 100,
+  "poin_pengalaman": 100,
+  "jumlah_misi_selesai": 5
+}
+
+
+
+
+### Create Misi
+POST http://localhost:5000/misi
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9vd25lciI6MSwibmFtYV9vd25lciI6Ikd1aWxkIE1hc3RlciBZdW5vIiwidXNlcm5hbWUiOiJxcXEiLCJ0b3RhbF9rb2luIjoxMDAwLCJjcmVhdGVkQXQiOiIyMDI1LTA1LTIyVDE0OjM0OjI2LjAwMFoiLCJ1cGRhdGVkQXQiOiIyMDI1LTA1LTIyVDE0OjM0OjI2LjAwMFoiLCJpYXQiOjE3NDc5MjQ0NjksImV4cCI6MTc0NzkyNDc2OX0.qNsjDZtOCjLZlWA5S-7JSm4Gf5k9oKt2CxQfE8KZvSo
+
+
+{
+  "judul_misi": "membunuh slime",
+  "deskripsi": "Jelajahi hutan untuk menemukan artefak modern.",
+  "hadiah_koin": 1000,
+  "hadiah_xp": 500,
+  "status_misi": "belum diambil",
+  "level_required": 1,
+  "id_pembuat": 1
 }
 
 ###
 
-### GET NOTES (harus pakai token dari login, ganti YOUR_ACCESS_TOKEN dengan token sebenarnya)
+### Get Semua Misi
+GET http://localhost:5000/misi
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZXR1YWxhbmciOjIsInVzZXJuYW1lIjoiYWRlIiwicm9sZSI6Im1lbWJlciIsImxldmVsIjoxLCJrb2luIjowLCJqdW1sYWhfbWlzaV9zZWxlc2FpIjowLCJwb2luX3BlbmdhbGFtYW4iOjAsImNyZWF0ZWRfYXQiOiIyMDI1LTA1LTIxVDEyOjQ3OjA1LjAwMFoiLCJpYXQiOjE3NDc4MzIzODAsImV4cCI6MTc0NzgzMjY4MH0.0y-OJ0vfV2jOxYzMp78Y1AOeS2J8Jo6AAwxjUXWcI_M
 
-GET http://localhost:5000/note/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6InRlcyIsImVtYWlsIjoidGVzQHRlcy5jb20iLCJjcmVhdGVkQXQiOiIyMDI1LTA1LTE3VDE3OjEwOjQxLjAwMFoiLCJ1cGRhdGVkQXQiOiIyMDI1LTA1LTE4VDEyOjI2OjUwLjAwMFoiLCJpYXQiOjE3NDc1NzEyNTcsImV4cCI6MTc0NzU3MTI4N30.FbVCN1s8Ba5BiC-sNWYYhpdsxDc0bvsVr9EvPl_gPU8
+
+###
+
+### Get Misi by ID
+GET http://localhost:5000/logactivity
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9vd25lciI6MywibmFtYV9vd25lciI6IkJ1ZGkiLCJ1c2VybmFtZSI6ImJ1ZGkxIiwidG90YWxfa29pbiI6MTAwMCwiY3JlYXRlZEF0IjoiMjAyNS0wNS0yMVQxMjo0OTowNC4wMDBaIiwidXBkYXRlZEF0IjoiMjAyNS0wNS0yMVQxMjo0OTowNC4wMDBaIiwiaWF0IjoxNzQ3ODMxNzQ5LCJleHAiOjE3NDc4MzIwNDl9.a66dEmuJJbwGJP2Mm7Bydu1c1KUAZZdpmu7E0c7eOco
 
 
-### Refresh Access Token
-GET  http://localhost:5000/refresh-token
+
+### Create new log activity (butuh token)
+POST http://localhost:5000/logactivity
 Content-Type: application/json
-Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6InRlcyIsImVtYWlsIjoidGVzQHRlcy5jb20iLCJjcmVhdGVkQXQiOiIyMDI1LTA1LTE3VDE3OjEwOjQxLjAwMFoiLCJ1cGRhdGVkQXQiOiIyMDI1LTA1LTE4VDExOjI0OjQ2LjAwMFoiLCJpYXQiOjE3NDc1Njc1NDksImV4cCI6MTc0NzY1Mzk0OX0.i2EM-PJ1Qpr5MLOEVZphoRZx7oVZyiSKKxlEUE6hpGs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9vd25lciI6MywibmFtYV9vd25lciI6IkJ1ZGkiLCJ1c2VybmFtZSI6ImJ1ZGkxIiwidG90YWxfa29pbiI6MTAwMCwiY3JlYXRlZEF0IjoiMjAyNS0wNS0yMVQxMjo0OTowNC4wMDBaIiwidXBkYXRlZEF0IjoiMjAyNS0wNS0yMVQxMjo0OTowNC4wMDBaIiwiaWF0IjoxNzQ3ODMyMTE0LCJleHAiOjE3NDc4MzI0MTR9.UWX2EldODmBmOxpQsw_2mOTFeyQEo37uBp26XyeUnyw
 
+
+{
+  "id_petualang": 1,
+  "id_misi": 2,
+  "aktivitas": "Menyelesaikan berkas rere",
+  "keterangan": "Berhasil menyelesaikan misi dengan cepat"
+}
+
+###
+GET http://localhost:5000/logactivity
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9vd25lciI6MywibmFtYV9vd25lciI6IkJ1ZGkiLCJ1c2VybmFtZSI6ImJ1ZGkxIiwidG90YWxfa29pbiI6MTAwMCwiY3JlYXRlZEF0IjoiMjAyNS0wNS0yMVQxMjo0OTowNC4wMDBaIiwidXBkYXRlZEF0IjoiMjAyNS0wNS0yMVQxMjo0OTowNC4wMDBaIiwiaWF0IjoxNzQ3ODMyMTE0LCJleHAiOjE3NDc4MzI0MTR9.UWX2EldODmBmOxpQsw_2mOTFeyQEo37uBp26XyeUnyw
+
+
+
+
+### 
+POST http://localhost:5000/logactivity/ambil-misi/4
+
+
+Content-Type: application/json
+
+{
+  "id_petualang": 1,
+  "id_misi": 2
+}
+
+### Login Petualang
+POST http://localhost:5000/petualang/login
+Content-Type: application/json
+
+{
+  "username": "bbb",
+  "password": "bbbbbb"
+}
+
+###
+GET http://localhost:5000/logactivity/4
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZXR1YWxhbmciOjQsInVzZXJuYW1lIjoiYWFhIiwicm9sZSI6InBlbWlsaWsiLCJsZXZlbCI6NSwia29pbiI6NSwianVtbGFoX21pc2lfc2VsZXNhaSI6NSwicG9pbl9wZW5nYWxhbWFuIjo1LCJjcmVhdGVkX2F0IjoiMjAyNS0wNS0yMVQxMzo0ODoxNi4wMDBaIiwiaWF0IjoxNzQ3OTA2NjYzLCJleHAiOjE3NDc5MDY5NjN9.tZ_wp3fHsACFr8mo9DmxV-m7T2GGpns1BW_B1j__Wtk
+
+####
+GET http://localhost:5000/logactivity/:id_petualang
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZXR1YWxhbmciOjQsInVzZXJuYW1lIjoiYWFhIiwicm9sZSI6InBlbWlsaWsiLCJsZXZlbCI6NSwia29pbiI6NSwianVtbGFoX21pc2lfc2VsZXNhaSI6NSwicG9pbl9wZW5nYWxhbWFuIjo1LCJjcmVhdGVkX2F0IjoiMjAyNS0wNS0yMVQxMzo0ODoxNi4wMDBaIiwiaWF0IjoxNzQ3OTA1NDg4LCJleHAiOjE3NDc5MDU3ODh9.-zbnb1ZeS2EvYS4ReJaQ-lcPI1Q9wtvjJ2JYlJz5JQg
+
+
+###
+POST http://localhost:5000/owner/add-owner
+Content-Type: application/json
+
+{
+  "nama_owner": "Guild Master Yuno",
+  "username": "qqq",
+  "password": "qqq",
+  "total_koin": 1000
+}
+
+####
+POST http://localhost:5000/owner/login
+Content-Type: application/json
+
+{
+  "username": "qqq",
+  "password": "qqq"
+}
+
+### Login Petualang
+POST http://localhost:5000/petualang/login
+Content-Type: application/json
+
+{
+  "username": "aaa",
+  "password": "aaaaaa"
+}
+####
