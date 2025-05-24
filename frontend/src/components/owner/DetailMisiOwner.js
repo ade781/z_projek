@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { BASE_URL } from "../utils";
+import { BASE_URL } from "../../utils";
 
 const DetailMisiOwner = () => {
   const { id } = useParams(); // id misi
@@ -149,6 +149,53 @@ const DetailMisiOwner = () => {
     }
   };
 
+  const handleMisiGagal = async () => {
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    if (!petualangIdFromLog) {
+      setErrorMsg("Tidak ditemukan petualang yang sedang mengerjakan misi ini.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      // Update status misi ke "belum diambil" dan id_petualang menjadi null
+      await axios.put(
+        `${BASE_URL}/misi/${misi.id_misi}`,
+        { status_misi: "belum diambil", id_petualang: null },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Simpan log aktivitas gagal
+      await axios.post(
+        `${BASE_URL}/logactivity`,
+        {
+          id_petualang: petualangIdFromLog,
+          id_misi: misi.id_misi,
+          aktivitas: "gagal misi",
+          keterangan: `Petualang ID ${petualangIdFromLog} gagal menyelesaikan misi "${misi.judul_misi}".`,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setSuccessMsg("Misi dibatalkan dan status dikembalikan ke 'belum diambil'.");
+
+      // Refresh data misi
+      const resRefresh = await axios.get(`${BASE_URL}/misi/${misi.id_misi}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMisi(resRefresh.data.data || resRefresh.data);
+
+      // Reset ID petualang yang sebelumnya ambil misi
+      setPetualangIdFromLog(null);
+    } catch (error) {
+      setErrorMsg("Gagal membatalkan misi.");
+      console.error(error);
+    }
+  };
+
 
 
   if (loading) return <p>Loading...</p>;
@@ -168,10 +215,17 @@ const DetailMisiOwner = () => {
           <p>Level Required: {misi.level_required}</p>
 
           {misi.status_misi === "aktif" && (
-            <button onClick={handleMisiSelesai}>Tandai Misi Selesai</button>
+            <div style={{ marginTop: "10px" }}>
+              <button onClick={handleMisiSelesai}>Tandai Misi Selesai</button>
+              <button
+                onClick={handleMisiGagal}
+              >
+                Batalkan Misi
+              </button>
+            </div>
           )}
-
           {successMsg && <p style={{ color: "green" }}>{successMsg}</p>}
+
         </>
       )}
     </div>

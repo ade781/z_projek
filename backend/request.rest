@@ -2,16 +2,17 @@
 POST http://localhost:5000/petualang/add-petualang
 Content-Type: application/json
 
-{
-  "username": "aaa",
-  "password": "aaa",
-  "role": "member",
-  "level": 1,
-  "koin": 0,
-  "jumlah_misi_selesai": 0,
-  "poin_pengalaman": 0
-}
 
+  {
+      "username": "mira_light",
+    "password": "rahasia6",
+    "role": "healer",
+    "level": 6,
+    "koin": 320,
+    "jumlah_misi_selesai": 6,
+    "poin_pengalaman": 2200
+  }
+ 
 
 ###
 
@@ -20,8 +21,8 @@ POST http://localhost:5000/petualang/login
 Content-Type: application/json
 
 {
-  "username": "bbb",
-  "password": "bbb"
+  "username": "aaa",
+  "password": "aaa"
 }
 
 ###
@@ -29,13 +30,14 @@ Content-Type: application/json
 ### Get All Petualang (butuh token)
 GET  http://localhost:5000/petualang
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZXR1YWxhbmciOjEsInVzZXJuYW1lIjoiYmJiIiwicm9sZSI6Im1lbWJlciIsImxldmVsIjoxLCJrb2luIjowLCJqdW1sYWhfbWlzaV9zZWxlc2FpIjowLCJwb2luX3BlbmdhbGFtYW4iOjAsImNyZWF0ZWRfYXQiOiIyMDI1LTA1LTIyVDE0OjMzOjIwLjAwMFoiLCJpYXQiOjE3NDc5MjQ0MDgsImV4cCI6MTc0NzkyNDcwOH0.YrY-oQc_UfWEz7mGgJBEvFrTBcHSd6VX6FqY066_SFI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZXR1YWxhbmciOjEsInVzZXJuYW1lIjoiYWFhIiwicm9sZSI6Im1lbWJlciIsImxldmVsIjo0LCJrb2luIjo2MDAsImp1bWxhaF9taXNpX3NlbGVzYWkiOjcsInBvaW5fcGVuZ2FsYW1hbiI6OTUwLCJjcmVhdGVkX2F0IjoiMjAyNS0wNS0yNFQwNDo0ODo0MC4wMDBaIiwiaWF0IjoxNzQ4MDcxNDkyLCJleHAiOjE3NDgwNzE3OTJ9.B1FX2ONK-HECrm4h8OCQ3FMlp_RvuzarIFrmfwEf26g
 
 ###
 
 ### Get Petualang by ID (butuh token)
 GET http://localhost:5000/petualang/5
-Authorization: Bearer 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZXR1YWxhbmciOjEsInVzZXJuYW1lIjoiYWFhIiwicm9sZSI6Im1lbWJlciIsImxldmVsIjo0LCJrb2luIjo2MDAsImp1bWxhaF9taXNpX3NlbGVzYWkiOjcsInBvaW5fcGVuZ2FsYW1hbiI6OTUwLCJjcmVhdGVkX2F0IjoiMjAyNS0wNS0yNFQwNDo0ODo0MC4wMDBaIiwiaWF0IjoxNzQ4MDcxNDkyLCJleHAiOjE3NDgwNzE3OTJ9.B1FX2ONK-HECrm4h8OCQ3FMlp_RvuzarIFrmfwEf26g
+
 
 ###
 PUT http://localhost:5000/petualang/edit-petualang/2
@@ -54,7 +56,7 @@ Authorization: Bearer
 ### Create Misi
 POST http://localhost:5000/misi
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9vd25lciI6MSwibmFtYV9vd25lciI6Ikd1aWxkIE1hc3RlciBZdW5vIiwidXNlcm5hbWUiOiJxcXEiLCJ0b3RhbF9rb2luIjoxMDAwLCJjcmVhdGVkQXQiOiIyMDI1LTA1LTIyVDE0OjM0OjI2LjAwMFoiLCJ1cGRhdGVkQXQiOiIyMDI1LTA1LTIyVDE0OjM0OjI2LjAwMFoiLCJpYXQiOjE3NDc5MjQ0NjksImV4cCI6MTc0NzkyNDc2OX0.qNsjDZtOCjLZlWA5S-7JSm4Gf5k9oKt2CxQfE8KZvSo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9wZXR1YWxhbmciOjEsInVzZXJuYW1lIjoiYWFhIiwicm9sZSI6Im1lbWJlciIsImxldmVsIjo0LCJrb2luIjo2MDAsImp1bWxhaF9taXNpX3NlbGVzYWkiOjcsInBvaW5fcGVuZ2FsYW1hbiI6OTUwLCJjcmVhdGVkX2F0IjoiMjAyNS0wNS0yNFQwNDo0ODo0MC4wMDBaIiwiaWF0IjoxNzQ4MDcxMjcyLCJleHAiOjE3NDgwNzE1NzJ9.Miak_INsIg7QKPjpD1j0NfR5VnQNRZFVVH-dSI_PheU
 
 
 {

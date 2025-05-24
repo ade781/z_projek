@@ -8,10 +8,7 @@ import jwt from "jsonwebtoken";
 export async function getPetualangs(req, res) {
     try {
         const petualangs = await Petualang.findAll({
-            include: [
-                { model: LogActivity, as: 'log_aktivitas' }, // sesuaikan alias kalau pakai alias
-                { model: Misi, as: 'misis' } // kalau ada relasi langsung, kalau tidak bisa dihapus
-            ],
+           
             attributes: { exclude: ["password"] },
         });
         res.status(200).json({

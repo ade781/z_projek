@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { BASE_URL } from "../utils";
+import { BASE_URL } from "../../utils";
 
 const NavbarPetualang = () => {
     const navigate = useNavigate();
@@ -64,9 +64,7 @@ const NavbarPetualang = () => {
             <span>Level: {petualang.level}</span> |{" "}
             <span>Koin: {petualang.koin}</span> |{" "}
             <button onClick={() => navigate("/dashboard-petualang")}>Dashboard Petualang</button>{" "}
-            <button onClick={() => navigate("/dashboard-misi-petualang")} style={{ marginLeft: "10px" }}>
-                Dashboard Misi Petualang
-            </button>{" "}
+
             <button onClick={handleLogout} style={{ marginLeft: "10px" }}>Logout</button>
         </nav>
     );
