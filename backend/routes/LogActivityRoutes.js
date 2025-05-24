@@ -23,6 +23,4 @@ router.get("/:id", verifyToken, getLogActivityById);
 router.post("/", verifyToken, createLogActivity);
 router.put("/:id", verifyToken, updateLogActivity);
 router.delete("/:id", verifyToken, deleteLogActivity);
-
-router.post("/misi-selesai", misiSelesai); 
 export default router;

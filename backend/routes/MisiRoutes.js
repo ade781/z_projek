@@ -6,7 +6,7 @@ import {
   updateMisi,
   deleteMisi,
   ambilMisi,
-  misiSelesai
+  
 } from "../controllers/MisiController.js";
 
 import { verifyToken } from "../middleware/VerifyToken.js";
@@ -19,7 +19,7 @@ router.post("/", verifyToken, createMisi);
 router.put("/:id", verifyToken, updateMisi);
 router.delete("/:id", verifyToken, deleteMisi);
 router.post("/ambil-misi", ambilMisi);
-router.post("/misi-selesai", misiSelesai);
+
 
 
 export default router;

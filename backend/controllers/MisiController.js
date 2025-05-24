@@ -147,95 +147,45 @@ export const updateMisi = async (req, res) => {
 
 // Ambil misi (ubah status misi dan catat di log aktivitas)
 export const ambilMisi = async (req, res) => {
-  try {
-    const { id_petualang, id_misi } = req.body;
+    try {
+        const { id_petualang, id_misi } = req.body;
 
-    const misi = await Misi.findOne({ where: { id_misi } });
-    if (!misi) {
-      return res.status(404).json({ status: "Error", message: "Misi tidak ditemukan" });
+        const misi = await Misi.findOne({ where: { id_misi } });
+        if (!misi) {
+            return res.status(404).json({ status: "Error", message: "Misi tidak ditemukan" });
+        }
+        if (misi.status_misi !== "belum diambil") {
+            return res.status(400).json({ status: "Error", message: "Misi sudah diambil atau tidak bisa diambil" });
+        }
+
+        // Update status misi jadi 'aktif' dan simpan id_petualang
+        await Misi.update(
+            { status_misi: "aktif", id_petualang: id_petualang },
+            { where: { id_misi } }
+        );
+
+
+        res.status(200).json({ status: "Success", message: "Misi berhasil diambil" });
+    } catch (error) {
+        res.status(500).json({ status: "Error", message: error.message });
     }
-    if (misi.status_misi !== "belum diambil") {
-      return res.status(400).json({ status: "Error", message: "Misi sudah diambil atau tidak bisa diambil" });
-    }
-
-    // Update status misi jadi 'aktif' dan simpan id_petualang
-    await Misi.update(
-      { status_misi: "aktif", id_petualang: id_petualang },
-      { where: { id_misi } }
-    );
-
-    // Catat log aktivitas
-    await LogActivity.create({
-      id_petualang,
-      id_misi,
-      aktivitas: "ambil_misi",
-      keterangan: "Petualang mengambil misi",
-    });
-
-    res.status(200).json({ status: "Success", message: "Misi berhasil diambil" });
-  } catch (error) {
-    res.status(500).json({ status: "Error", message: error.message });
-  }
 };
 
 
-export const misiSelesai = async (req, res) => {
-  const { id_misi } = req.body;
-
-  try {
-    // 1. Cek misi ada dan status aktif
-    const misi = await Misi.findByPk(id_misi);
-    if (!misi) {
-      return res.status(404).json({ message: "Misi tidak ditemukan" });
-    }
-    if (misi.status_misi !== "aktif") {
-      return res.status(400).json({ message: "Misi harus dalam status aktif untuk diselesaikan" });
-    }
-
-    // 2. Cari log aktivitas yang menunjukkan petualang yang ambil misi ini
-    // Asumsi aktivitas 'ambil-misi' menunjukkan petualang yang mengambil
-    const logAmbilMisi = await LogAktivitas.findOne({
-      where: { id_misi, aktivitas: "ambil-misi" },
-      order: [["tanggal_waktu", "DESC"]], // ambil yang terbaru
-    });
-
-    if (!logAmbilMisi) {
-      return res.status(404).json({ message: "Petualang yang mengambil misi tidak ditemukan" });
-    }
-
-    const id_petualang = logAmbilMisi.id_petualang;
-
-    // 3. Update petualang
-    const petualang = await Petualang.findByPk(id_petualang);
-    if (!petualang) {
-      return res.status(404).json({ message: "Petualang tidak ditemukan" });
-    }
-    petualang.koin += misi.hadiah_koin;
-    petualang.poin_pengalaman += misi.hadiah_xp;
-    petualang.jumlah_misi_selesai += 1;
-    await petualang.save();
-
-    // 4. Update status misi
-    misi.status_misi = "selesai";
-    await misi.save();
-
-    // 5. Catat log aktivitas bahwa owner menyelesaikan misi
-    await LogAktivitas.create({
-      id_petualang,
-      id_misi,
-      aktivitas: "misi disetujui owner",
-      keterangan: `Misi "${misi.judul_misi}" telah disetujui dan diselesaikan oleh owner.`,
-      tanggal_waktu: new Date(),
-    });
-
-    return res.json({ message: "Misi berhasil diselesaikan dan di-approve oleh owner" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Terjadi kesalahan server" });
-  }
-};
-
-
+function getLevelFromXP(xp) {
+    if (xp < 100) return 1;
+    if (xp < 300) return 2;
+    if (xp < 600) return 3;
+    if (xp < 1000) return 4;
+    if (xp < 1500) return 5;
+    if (xp < 2100) return 6;
+    if (xp < 2800) return 7;
+    if (xp < 3600) return 8;
+    if (xp < 4500) return 9;
+    if (xp < 5500) return 10;
+    if (xp < 6600) return 11;
+    return 12;
+}
 
 
 
