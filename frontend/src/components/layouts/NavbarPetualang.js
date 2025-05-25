@@ -17,24 +17,14 @@ const NavbarPetualang = () => {
             const token = localStorage.getItem("accessToken");
             const id_petualang = localStorage.getItem("id_petualang");
 
-            console.log("Token:", token);
-            console.log("ID Petualang:", id_petualang);
-
-            if (!token || !id_petualang) {
-                console.log("Token atau ID tidak ditemukan");
-                return;
-            }
+            if (!token || !id_petualang) return;
 
             try {
                 const res = await axios.get(`${BASE_URL}/petualang/${id_petualang}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                console.log("Response dari API:", res.data);
-
                 const userData = res.data.data || res.data;
-
-                console.log("Data yang akan di-set:", userData);
 
                 setPetualang({
                     username: userData.username || "",
@@ -44,7 +34,6 @@ const NavbarPetualang = () => {
                 });
             } catch (error) {
                 console.error("Error fetching petualang data:", error);
-                console.error("Error response:", error.response);
             }
         };
 
@@ -58,14 +47,32 @@ const NavbarPetualang = () => {
     };
 
     return (
-        <nav style={{ padding: "10px", background: "#f0f0f0", marginBottom: "20px" }}>
-            <span>Username: {petualang.username}</span> |{" "}
-            <span>Role: {petualang.role}</span> |{" "}
-            <span>Level: {petualang.level}</span> |{" "}
-            <span>Koin: {petualang.koin}</span> |{" "}
-            <button onClick={() => navigate("/dashboard-petualang")}>Dashboard Petualang</button>{" "}
+        <nav style={{
+            padding: "10px",
+            background: "#f0f0f0",
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "center",
+            gap: "20px"
+        }}>
+            <img
+                src="/logo-guild.png"
+                alt="Guild Logo"
+                style={{ width: "50px", height: "auto" }}
+            />
 
-            <button onClick={handleLogout} style={{ marginLeft: "10px" }}>Logout</button>
+            <div>
+                <span>Username: {petualang.username}</span> |{" "}
+                <span>Role: {petualang.role}</span> |{" "}
+                <span>Level: {petualang.level}</span> |{" "}
+                <span>Koin: {petualang.koin}</span> |{" "}
+                <button onClick={() => navigate("/dashboard-petualang")}>
+                    Dashboard Petualang
+                </button>{" "}
+                <button onClick={handleLogout} style={{ marginLeft: "10px" }}>
+                    Logout
+                </button>
+            </div>
         </nav>
     );
 };

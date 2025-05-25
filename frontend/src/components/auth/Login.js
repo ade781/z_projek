@@ -30,6 +30,11 @@ const Login = () => {
 
     return (
         <div>
+            <img
+                src="/logo-guild.png"
+                alt="Guild Logo"
+                style={{ width: "50px", height: "auto" }}
+            />
             <h2>Login Petualang</h2>
             <form onSubmit={handleLogin}>
                 <div>
