@@ -31,6 +31,11 @@ const LoginOwner = () => {
 
     return (
         <div>
+            <img
+                src="/logo-guild.png"
+                alt="Guild Logo"
+                style={{ width: "50px", height: "auto" }}
+            />
             <h2>Login Owner</h2>
             <form onSubmit={handleLogin}>
                 <div>

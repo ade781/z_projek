@@ -17,6 +17,11 @@ const SideBarOwner = ({ setFilterStatus }) => {
 
     return (
         <div>
+            <img
+                src="/logo-guild.png"
+                alt="Guild Logo"
+                style={{ width: "50px", height: "auto" }}
+            />
             <div>Halo, {ownerName}</div>
 
             <nav>

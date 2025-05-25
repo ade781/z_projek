@@ -196,7 +196,31 @@ const DetailMisiOwner = () => {
     }
   };
 
+  const handleDeleteMisi = async () => {
+    setErrorMsg("");
+    setSuccessMsg("");
 
+    if (!misi || misi.status_misi !== "belum diambil") {
+      setErrorMsg("Misi hanya bisa dihapus jika statusnya 'belum diambil'.");
+      return;
+    }
+
+
+
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      await axios.delete(`${BASE_URL}/misi/${misi.id_misi}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setSuccessMsg("Misi berhasil dihapus.");
+      setMisi(null); 
+    } catch (error) {
+      setErrorMsg("Gagal menghapus misi.");
+      console.error(error);
+    }
+  };
 
   if (loading) return <p>Loading...</p>;
 
@@ -217,13 +241,18 @@ const DetailMisiOwner = () => {
           {misi.status_misi === "aktif" && (
             <div style={{ marginTop: "10px" }}>
               <button onClick={handleMisiSelesai}>Tandai Misi Selesai</button>
-              <button
-                onClick={handleMisiGagal}
-              >
-                Batalkan Misi
+              <button onClick={handleMisiGagal}>Batalkan Misi</button>
+            </div>
+          )}
+
+          {misi.status_misi === "belum diambil" && (
+            <div style={{ marginTop: "10px" }}>
+              <button onClick={handleDeleteMisi} style={{ backgroundColor: "red", color: "white" }}>
+                Hapus Misi
               </button>
             </div>
           )}
+
           {successMsg && <p style={{ color: "green" }}>{successMsg}</p>}
 
         </>
