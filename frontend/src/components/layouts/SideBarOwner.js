@@ -26,9 +26,6 @@ const SideBarOwner = ({ setFilterStatus }) => {
 
             <nav>
                 <NavLink to="/misi-owner">Misi </NavLink>
-
-
-
                 <div>
                     <div onClick={() => setMisiMenuOpen(!misiMenuOpen)} style={{ cursor: "pointer" }}>
                         Daftar Misi {misiMenuOpen ? "▼" : "▶"}

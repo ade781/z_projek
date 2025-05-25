@@ -3,9 +3,9 @@ import { Route } from "react-router-dom";
 import MisiListOwner from "../owner/MisiListOwner";
 import TambahMisi from "../owner/TambahMisi";
 import DetailMisiOwner from "../owner/DetailMisiOwner";
-import RegisterPetualang from "../RegisterPetualangbyOwner";
+import RegisterPetualang from "../owner/RegisterPetualangbyOwner";
 import LayoutOwner from "../layouts/LayoutOwner";
-import LeaderboardPetualang from "../petualang/LeaderboardPetualang";
+import DataPetualang from "../owner/DataPetualangByOwner";
 
 const OwnerRoutes = () => (
   <Route path="/" element={<LayoutOwner />}>
@@ -13,7 +13,8 @@ const OwnerRoutes = () => (
     <Route path="misi-owner/tambah" element={<TambahMisi />} />
     <Route path="detail-misi-owner/:id" element={<DetailMisiOwner />} />
     <Route path="register-petualang" element={<RegisterPetualang />} />
-    <Route path="leaderboard-petualang" element={<LeaderboardPetualang />} />
+    <Route path="data-petualang" element={<DataPetualang />} />
+
   </Route>
 );
 

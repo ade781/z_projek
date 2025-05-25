@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../utils";
-import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../utils";
+
 
 const RegisterPetualang = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("user");
     const [errorMsg, setErrorMsg] = useState("");
-    const navigate = useNavigate();
+    const [successMsg, setSuccessMsg] = useState("");
 
     const handleRegister = async (e) => {
         e.preventDefault();
         setErrorMsg("");
+        setSuccessMsg("")
         try {
             const res = await axios.post(`${BASE_URL}/petualang/add-petualang`, {
                 username,
@@ -24,8 +25,7 @@ const RegisterPetualang = () => {
                 poin_pengalaman: 0,
             });
             if (res.data.status === "Success") {
-                alert(res.data.message);
-                navigate("/");
+                setSuccessMsg("pahlawan baru telah didaftarkan");
             } else {
                 setErrorMsg("Gagal register, coba lagi.");
             }
@@ -61,19 +61,25 @@ const RegisterPetualang = () => {
                 <div>
                     <label>Role</label>
                     <select value={role} onChange={(e) => setRole(e.target.value)}>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                        <option value="swordsman">Swordsman</option>
+                        <option value="mage">Mage</option>
+                        <option value="archer">Archer</option>
+                        <option value="healer">Healer</option>
+                        <option value="thief">Thief</option>
+                        <option value="monk">Monk</option>
+                        <option value="necromancer">Necromancer</option>
+                        <option value="summoner">Summoner</option>
+                        <option value="berserker">Berserker</option>
+                        <option value="paladin">Paladin</option>
+                        <option value="alchemist">Alchemist</option>
+                        <option value="beast_tamer">Beast Tamer</option>
                     </select>
                 </div>
                 {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
-                <button type="submit">Register</button>
+                {successMsg && <p style={{ color: "green" }}>{successMsg}</p>}
+                <button type="submit">Daftarkan petualang baru</button>
             </form>
-            <p>
-                Sudah punya akun?{" "}
-                <button onClick={() => navigate("/")}>
-                    Login di sini
-                </button>
-            </p>
+
         </div>
     );
 };

@@ -35,7 +35,7 @@ const MisiListOwner = () => {
 
         setMisi(data);
       } catch (error) {
-        setErrorMsg("Gagal mengambil data misi.");
+        setErrorMsg("Alangkah sebaiknya jika login dulu karena sesi nya udah habis");
         console.error(error);
       } finally {
         setLoading(false);
