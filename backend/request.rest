@@ -4,13 +4,14 @@ Content-Type: application/json
 
 
   {
-      "username": "mira_light",
-    "password": "rahasia6",
+    "id_petualang":"1",
+      "username": "aaa",
+    "password": "aaa",
     "role": "healer",
-    "level": 6,
-    "koin": 320,
-    "jumlah_misi_selesai": 6,
-    "poin_pengalaman": 2200
+    "level": 1,
+    "koin": 1,
+    "jumlah_misi_selesai": 0,
+    "poin_pengalaman": 1
   }
  
 
@@ -142,10 +143,10 @@ POST http://localhost:5000/owner/add-owner
 Content-Type: application/json
 
 {
-  "nama_owner": "Guild Master Yuno",
-  "username": "qqq",
-  "password": "qqq",
-  "total_koin": 1000
+  "nama_owner": "Guild Master AKU !",
+  "username": "sss",
+  "password": "sss",
+  "total_koin": 9999
 }
 
 ####

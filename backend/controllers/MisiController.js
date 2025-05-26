@@ -90,6 +90,21 @@ export const createMisi = async (req, res) => {
     }
 };
 
+function getLevelFromXP(xp) {
+    if (xp < 100) return 1;
+    if (xp < 300) return 2;
+    if (xp < 600) return 3;
+    if (xp < 1000) return 4;
+    if (xp < 1500) return 5;
+    if (xp < 2100) return 6;
+    if (xp < 2800) return 7;
+    if (xp < 3600) return 8;
+    if (xp < 4500) return 9;
+    if (xp < 5500) return 10;
+    if (xp < 6600) return 11;
+    return 12;
+}
+
 // UPDATE MISI
 export const updateMisi = async (req, res) => {
     try {
@@ -109,6 +124,7 @@ export const updateMisi = async (req, res) => {
             status_misi,
             level_required,
             id_pembuat,
+            id_petualang
         } = req.body;
 
         // Validasi status_misi (optional)
@@ -129,6 +145,7 @@ export const updateMisi = async (req, res) => {
                 status_misi,
                 level_required,
                 id_pembuat,
+                id_petualang
             },
             { where: { id_misi: req.params.id } }
         );
@@ -172,20 +189,6 @@ export const ambilMisi = async (req, res) => {
 };
 
 
-function getLevelFromXP(xp) {
-    if (xp < 100) return 1;
-    if (xp < 300) return 2;
-    if (xp < 600) return 3;
-    if (xp < 1000) return 4;
-    if (xp < 1500) return 5;
-    if (xp < 2100) return 6;
-    if (xp < 2800) return 7;
-    if (xp < 3600) return 8;
-    if (xp < 4500) return 9;
-    if (xp < 5500) return 10;
-    if (xp < 6600) return 11;
-    return 12;
-}
 
 
 

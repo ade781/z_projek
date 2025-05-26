@@ -50,13 +50,12 @@ export const createLogActivity = async (req, res) => {
 
 export const ambilMisi = async (req, res) => {
   try {
-    const { id_petualang, id_misi } = req.body; // ambil id_petualang dari body
+    const { id_petualang, id_misi } = req.body;
 
     if (!id_petualang || !id_misi) {
       return res.status(400).json({ message: "ID petualang dan misi wajib diisi" });
     }
 
-    // cari petualang dan misi seperti biasa
     const petualang = await Petualang.findOne({ where: { id_petualang } });
     if (!petualang) return res.status(404).json({ message: "Petualang tidak ditemukan" });
 
@@ -67,13 +66,28 @@ export const ambilMisi = async (req, res) => {
       return res.status(403).json({ message: "Level belum memenuhi syarat" });
     }
 
-    const sudahAmbil = await LogActivity.findOne({
-      where: { id_petualang, id_misi, aktivitas: "ambil misi" },
+    const logTerakhir = await LogActivity.findOne({
+      where: { id_petualang, id_misi },
+      order: [["tanggal_waktu", "DESC"]],
     });
 
-    if (sudahAmbil) {
-      return res.status(400).json({ message: "Misi sudah diambil" });
+    // Jika ada log "ambil misi", pastikan tidak ada log pembatalan setelahnya
+    if (logTerakhir && logTerakhir.aktivitas === "ambil misi") {
+      const logPembatalan = await LogActivity.findOne({
+        where: {
+          id_petualang,
+          id_misi,
+          aktivitas: ["batal misi", "gagal misi", "selesai misi"],
+        },
+        order: [["tanggal_waktu", "DESC"]],
+      });
+
+      // Jika tidak ada pembatalan/selesai setelah "ambil", tolak
+      if (!logPembatalan || logPembatalan.tanggal_waktu < logTerakhir.tanggal_waktu) {
+        return res.status(400).json({ message: "Misi sudah diambil dan belum selesai" });
+      }
     }
+
 
     const logBaru = await LogActivity.create({
       id_petualang,

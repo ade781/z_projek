@@ -10,7 +10,7 @@ const LayoutOwner = () => {
       <div style={{ width: "250px", background: "#f0f0f0", padding: "1rem" }}>
         <SideBarOwner setFilterStatus={setFilterStatus} />
       </div>
-      <div style={{ flex: 1, padding: "1rem" }}>
+      <div style={{ flex: 1}}>
         <Outlet context={{ filterStatus }} />
       </div>
     </div>

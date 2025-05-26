@@ -6,6 +6,7 @@ import DetailMisiOwner from "../owner/DetailMisiOwner";
 import RegisterPetualang from "../owner/RegisterPetualangbyOwner";
 import LayoutOwner from "../layouts/LayoutOwner";
 import DataPetualang from "../owner/DataPetualangByOwner";
+import EditMisi from "../owner/EditMisiOwner";
 
 const OwnerRoutes = () => (
   <Route path="/" element={<LayoutOwner />}>
@@ -14,6 +15,7 @@ const OwnerRoutes = () => (
     <Route path="detail-misi-owner/:id" element={<DetailMisiOwner />} />
     <Route path="register-petualang" element={<RegisterPetualang />} />
     <Route path="data-petualang" element={<DataPetualang />} />
+    <Route path="misi-owner/edit-misi/:id" element={<EditMisi />} />
 
   </Route>
 );

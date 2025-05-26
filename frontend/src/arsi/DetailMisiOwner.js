@@ -48,7 +48,7 @@ const DetailMisiOwner = () => {
 
         const logs = resLog.data.data || resLog.data;
         if (Array.isArray(logs) && logs.length > 0) {
-          const petualangId = logs[logs.length - 1]?.id_petualang || null;
+          const petualangId = logs[0]?.id_petualang || null;
           setPetualangIdFromLog(petualangId);
 
           // Fetch petualang data if available

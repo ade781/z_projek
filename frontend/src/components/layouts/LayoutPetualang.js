@@ -6,11 +6,14 @@ const LayoutPetualang = ({ children }) => {
   return (
     <>
       <NavbarPetualang />
-      <div style={{ display: "flex" }}>
-        <div style={{ width: "250px", minHeight: "100vh", background: "#f4f4f4" }}>
+      <div className="flex">
+        {/* Sidebar dengan margin top */}
+        <div className="w-[250px] min-h-screen bg-gray-100 mt-20">
           <SideBarPetualang />
         </div>
-        <div style={{ flex: 1, padding: "20px" }}>
+
+        {/* Children dengan margin top */}
+        <div className="flex-1 p-0 mt-20" >
           {children}
         </div>
       </div>
