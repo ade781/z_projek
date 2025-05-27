@@ -179,6 +179,21 @@ const MisiListOwner = () => {
                     </span>
                   </div>
                 </div>
+
+                  <div className="mt-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-blue-800">Kesulitan:</span>
+                    <span className="text-xs font-bold text-yellow-300">
+                      {item.level_required > 10 ? "LEGENDA" : item.level_required > 5 ? "SULIT" : "MUDAH"}
+                    </span>
+                  </div>
+                  <div className="w-full bg-blue-900/50 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${item.level_required > 10 ? 'bg-gradient-to-r from-red-500 to-yellow-500' : item.level_required > 5 ? 'bg-gradient-to-r from-yellow-500 to-yellow-300' : 'bg-gradient-to-r from-green-400 to-blue-400'}`}
+                      style={{ width: `${Math.min(100, item.level_required * 8)}%` }}
+                    ></div>
+                  </div>
+                </div>
                 
                 <button 
                   className="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors"
