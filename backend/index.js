@@ -14,7 +14,22 @@ dotenv.config();
 const app = express();
 
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: 'https://f-04-460503.uc.r.appspot.com' }));
+const allowedOrigins = [
+  "https://f-04-460503.uc.r.appspot.com",
+  "http://localhost:3000",
+];
+
+app.use(
+  cors({
+    credentials: true,
+    origin: (origin, callback) => {
+      // Allow non-browser requests without Origin header (e.g., curl/Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
+  })
+);
 app.use(express.json());
 
 app.get("/", (req, res) => res.send("Server running..."));

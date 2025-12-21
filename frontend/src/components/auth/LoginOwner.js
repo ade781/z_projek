@@ -25,7 +25,8 @@ const LoginOwner = () => {
 
             navigate("/misi-owner");
         } catch (err) {
-            setErrorMsg("Mantra rahasia atau stempel guild salah");
+            const apiMessage = err?.response?.data?.message;
+            setErrorMsg(apiMessage || "Mantra rahasia atau stempel guild salah");
         }
     };
 
