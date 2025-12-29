@@ -13,12 +13,15 @@ const AjukanMisiWarga = () => {
   const [successMsg, setSuccessMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requests, setRequests] = useState([]);
+  const [saldo, setSaldo] = useState(0);
   const navigate = useNavigate();
 
   const id_warga_desa = localStorage.getItem("id_warga_desa");
 
   const fetchRequests = async () => {
     if (!id_warga_desa) return;
+    const saldoRes = await axios.get(`${BASE_URL}/warga-desa/${id_warga_desa}`);
+    setSaldo(saldoRes.data.data?.koin || 0);
     const res = await axios.get(`${BASE_URL}/misi-request/warga/${id_warga_desa}`);
     setRequests(res.data.data || []);
   };
@@ -29,7 +32,7 @@ const AjukanMisiWarga = () => {
       return;
     }
     fetchRequests();
-  }, []);
+  }, [id_warga_desa]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,12 +77,23 @@ const AjukanMisiWarga = () => {
               Sampaikan kebutuhan desa kepada guild petualang.
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="mt-4 md:mt-0 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500"
-          >
-            Keluar
-          </button>
+          <div className="flex flex-col md:flex-row md:items-center gap-3 mt-4 md:mt-0">
+            <div className="px-4 py-2 bg-emerald-700/40 text-emerald-100 rounded-lg">
+              Saldo: {saldo} koin
+            </div>
+            <button
+              onClick={() => navigate("/topup-warga")}
+              className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-400"
+            >
+              Ajukan Koin
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-emerald-800 text-white rounded-lg hover:bg-emerald-700"
+            >
+              Keluar
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -126,6 +140,11 @@ const AjukanMisiWarga = () => {
                   min="0"
                   className="w-full px-4 py-3 bg-slate-800/70 border-b-2 border-emerald-500 text-white outline-none"
                 />
+                {form.hadiah_koin > saldo && (
+                  <p className="text-xs text-red-300 mt-1">
+                    Koin tidak cukup. Ajukan topup terlebih dulu.
+                  </p>
+                )}
               </div>
 
               {errorMsg && (

@@ -7,6 +7,7 @@ const RequestMisiOwner = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(true);
   const [formMap, setFormMap] = useState({});
+  const [ownerSaldo, setOwnerSaldo] = useState(0);
 
   const token = localStorage.getItem("accessToken");
   const id_owner = localStorage.getItem("id_owner");
@@ -15,10 +16,16 @@ const RequestMisiOwner = () => {
     setLoading(true);
     setErrorMsg("");
     try {
-      const res = await axios.get(`${BASE_URL}/misi-request?status=pending`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const [res, ownerRes] = await Promise.all([
+        axios.get(`${BASE_URL}/misi-request?status=pending`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${BASE_URL}/owner/${id_owner}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
       setRequests(res.data.data || []);
+      setOwnerSaldo(ownerRes.data.data?.total_koin || 0);
     } catch (error) {
       setErrorMsg("Gagal memuat request misi warga.");
     } finally {
@@ -100,6 +107,7 @@ const RequestMisiOwner = () => {
           <p className="text-indigo-200 italic mt-2">
             Tentukan level dan XP untuk misi yang diajukan warga.
           </p>
+          <div className="mt-3 text-indigo-100">Saldo Owner: {ownerSaldo} koin</div>
         </div>
 
         {errorMsg && (
@@ -128,10 +136,10 @@ const RequestMisiOwner = () => {
                       Warga: {request.warga_desa?.nama || "Warga"} | Koin: {request.hadiah_koin}
                     </p>
                   </div>
-                  <span className="text-xs px-3 py-1 rounded-full bg-yellow-400/20 text-yellow-200">
-                    pending
-                  </span>
-                </div>
+                    <span className="text-xs px-3 py-1 rounded-full bg-yellow-400/20 text-yellow-200">
+                      pending
+                    </span>
+                  </div>
 
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                   <div>
