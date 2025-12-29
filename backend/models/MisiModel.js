@@ -55,6 +55,16 @@ const Misi = db.define(
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     },
+    id_petualang_ambil: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "petualang",
+        key: "id_petualang",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
+    },
 
     created_at: {
       type: DataTypes.DATE,

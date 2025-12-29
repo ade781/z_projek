@@ -167,3 +167,94 @@ Content-Type: application/json
   "password": "aaaaaa"
 }
 ####
+
+### ======================
+### AI QUEST FLOW (NEW)
+### ======================
+
+### Login Petualang (ambil token)
+POST http://localhost:5000/petualang/login
+Content-Type: application/json
+
+{
+  "username": "aaa",
+  "password": "aaa"
+}
+
+###
+### Ambil Misi (logactivity)
+POST http://localhost:5000/logactivity/ambil-misi
+Content-Type: application/json
+Authorization: Bearer <TOKEN_PETUALANG>
+
+{
+  "id_petualang": 1,
+  "id_misi": 2
+}
+
+###
+### Ambil Misi (update status misi)
+POST http://localhost:5000/misi/ambil-misi
+Content-Type: application/json
+Authorization: Bearer <TOKEN_PETUALANG>
+
+{
+  "id_petualang": 1,
+  "id_misi": 2
+}
+
+###
+### Stage 1 - Generate Narasi + Opsi
+POST http://localhost:5000/logactivity/play-mission/next
+Content-Type: application/json
+Authorization: Bearer <TOKEN_PETUALANG>
+
+{
+  "id_petualang": 1,
+  "id_misi": 2
+}
+
+###
+### Stage 2 - Kirim pilihan dari Stage 1
+POST http://localhost:5000/logactivity/play-mission/next
+Content-Type: application/json
+Authorization: Bearer <TOKEN_PETUALANG>
+
+{
+  "id_petualang": 1,
+  "id_misi": 2,
+  "pilihan": "Pilih opsi pertama dari stage sebelumnya"
+}
+
+###
+### Login Owner (ambil token)
+POST http://localhost:5000/owner/login
+Content-Type: application/json
+
+{
+  "username": "sss",
+  "password": "sss"
+}
+
+###
+### Owner Review - Approve Mission (give rewards)
+POST http://localhost:5000/logactivity/approve-mission
+Content-Type: application/json
+Authorization: Bearer <TOKEN_OWNER>
+
+{
+  "id_petualang": 1,
+  "id_misi": 2
+}
+
+###
+### Owner Review - Reject Mission (retake)
+POST http://localhost:5000/logactivity/reject-mission
+Content-Type: application/json
+Authorization: Bearer <TOKEN_OWNER>
+
+{
+  "id_petualang": 1,
+  "id_misi": 2,
+  "alasan": "Laporan tidak memenuhi standar Guild."
+}

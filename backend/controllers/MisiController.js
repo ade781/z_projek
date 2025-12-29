@@ -124,7 +124,8 @@ export const updateMisi = async (req, res) => {
             status_misi,
             level_required,
             id_pembuat,
-            id_petualang
+            id_petualang,
+            id_petualang_ambil
         } = req.body;
 
         // Validasi status_misi (optional)
@@ -145,7 +146,8 @@ export const updateMisi = async (req, res) => {
                 status_misi,
                 level_required,
                 id_pembuat,
-                id_petualang
+                id_petualang: id_petualang ?? id_petualang_ambil,
+                id_petualang_ambil: id_petualang_ambil ?? id_petualang
             },
             { where: { id_misi: req.params.id } }
         );
@@ -177,12 +179,16 @@ export const ambilMisi = async (req, res) => {
 
         // Update status misi jadi 'aktif' dan simpan id_petualang
         await Misi.update(
-            { status_misi: "aktif", id_petualang: id_petualang },
+            {
+                status_misi: "aktif",
+                id_petualang: id_petualang,
+                id_petualang_ambil: id_petualang
+            },
             { where: { id_misi } }
         );
 
 
-        res.status(200).json({ status: "Success", message: "Misi berhasil diambil" });
+        res.status(200).json({ status: "Success", message: "Status misi berhasil diperbarui" });
     } catch (error) {
         res.status(500).json({ status: "Error", message: error.message });
     }

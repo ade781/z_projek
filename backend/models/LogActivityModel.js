@@ -43,6 +43,19 @@ const LogActivity = db.define(
             type: DataTypes.TEXT,
             allowNull: true,
         },
+        summary_ai: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        status_approval: {
+            type: DataTypes.ENUM("pending", "approved", "rejected"),
+            defaultValue: "pending",
+        },
+        history_pilihan: {
+            type: DataTypes.JSON,
+            allowNull: true,
+            defaultValue: [],
+        },
     },
     {
         freezeTableName: true,

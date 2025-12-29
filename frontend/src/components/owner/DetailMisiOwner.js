@@ -11,6 +11,7 @@ const DetailMisiOwner = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [petualangIdFromLog, setPetualangIdFromLog] = useState(null);
+  const [logEntry, setLogEntry] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
   const [petualangData, setPetualangData] = useState(null);
@@ -37,18 +38,26 @@ const DetailMisiOwner = () => {
         const misiData = resMisi.data.data || resMisi.data;
         setMisi(misiData);
 
-        // 2. Ambil logactivity aktivitas "ambil misi" untuk misi ini
+        // 2. Ambil logactivity terbaru untuk misi ini
         const resLog = await axios.get(`${BASE_URL}/logactivity`, {
           headers: { Authorization: `Bearer ${token}` },
           params: {
             id_misi: id,
-            aktivitas: "ambil misi",
           },
         });
 
         const logs = resLog.data.data || resLog.data;
         if (Array.isArray(logs) && logs.length > 0) {
-          const petualangId = logs[logs.length - 1]?.id_petualang || null;
+          const sortedLogs = [...logs].sort(
+            (a, b) => new Date(a.tanggal_waktu) - new Date(b.tanggal_waktu)
+          );
+          const pendingLog = sortedLogs.find(
+            (item) => item.status_approval === "pending"
+          );
+          const selectedLog = pendingLog || sortedLogs[sortedLogs.length - 1];
+          setLogEntry(selectedLog);
+
+          const petualangId = selectedLog?.id_petualang || null;
           setPetualangIdFromLog(petualangId);
 
           // Fetch petualang data if available
@@ -61,6 +70,7 @@ const DetailMisiOwner = () => {
           }
         } else {
           setPetualangIdFromLog(null);
+          setLogEntry(null);
         }
       } catch (error) {
         setErrorMsg("Gagal memuat data misi atau log aktivitas.");
@@ -73,21 +83,6 @@ const DetailMisiOwner = () => {
     fetchMisiDanPetualang();
   }, [id, navigate]);
 
-  function getLevelFromXP(xp) {
-    if (xp < 100) return 1;
-    if (xp < 300) return 2;
-    if (xp < 600) return 3;
-    if (xp < 1000) return 4;
-    if (xp < 1500) return 5;
-    if (xp < 2100) return 6;
-    if (xp < 2800) return 7;
-    if (xp < 3600) return 8;
-    if (xp < 4500) return 9;
-    if (xp < 5500) return 10;
-    if (xp < 6600) return 11;
-    return 12;
-  }
-
   const handleConfirmation = (action) => {
     setConfirmationAction(action);
     setShowConfirmation(true);
@@ -95,16 +90,16 @@ const DetailMisiOwner = () => {
 
   const handleConfirmAction = async () => {
     setShowConfirmation(false);
-    if (confirmationAction === "selesai") {
-      await handleMisiSelesai();
-    } else if (confirmationAction === "gagal") {
-      await handleMisiGagal();
+    if (confirmationAction === "approve") {
+      await handleApproveMission();
+    } else if (confirmationAction === "reject") {
+      await handleRejectMission();
     } else if (confirmationAction === "hapus") {
       await handleDeleteMisi();
     }
   };
 
-  const handleMisiSelesai = async () => {
+  const handleApproveMission = async () => {
     setErrorMsg("");
     setSuccessMsg("");
 
@@ -116,54 +111,16 @@ const DetailMisiOwner = () => {
     try {
       const token = localStorage.getItem("accessToken");
 
-      // Update status misi jadi "selesai"
-      await axios.put(
-        `${BASE_URL}/misi/${misi.id_misi}`,
-        { status_misi: "selesai" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      // Ambil data petualang untuk update
-      const resGetPetualang = await axios.get(
-        `${BASE_URL}/petualang/${petualangIdFromLog}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const petualang = resGetPetualang.data.data || resGetPetualang.data;
-
-      // Hitung XP dan level baru
-      const xpBaru = (petualang.poin_pengalaman || 0) + misi.hadiah_xp;
-      const levelBaru = getLevelFromXP(xpBaru);
-      const naikLevel = levelBaru > (petualang.level || 1);
-
-      // Update data petualang
-      const updateData = {
-        koin: (petualang.koin || 0) + misi.hadiah_koin,
-        poin_pengalaman: xpBaru,
-        jumlah_misi_selesai: (petualang.jumlah_misi_selesai || 0) + 1,
-        ...(naikLevel && { level: levelBaru }),
-      };
-
-      await axios.put(
-        `${BASE_URL}/petualang/edit-petualang/${petualangIdFromLog}`,
-        updateData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      // Simpan log selesai misi
       await axios.post(
-        `${BASE_URL}/logactivity`,
+        `${BASE_URL}/logactivity/approve-mission`,
         {
           id_petualang: petualangIdFromLog,
           id_misi: misi.id_misi,
-          aktivitas: "selesai misi",
-          keterangan: `Petualang dengan ID ${petualangIdFromLog} telah menyelesaikan misi "${misi.judul_misi}" dan mendapat hadiah.`,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setSuccessMsg(
-        `Misi berhasil ditandai selesai! Hadiah diberikan.${naikLevel ? " Petualang naik level!" : ""}`
-      );
+      setSuccessMsg("Misi disetujui. Hadiah diberikan kepada petualang.");
 
       // Refresh data
       const resRefresh = await axios.get(`${BASE_URL}/misi/${misi.id_misi}`, {
@@ -177,13 +134,28 @@ const DetailMisiOwner = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPetualangData(resPetualang.data.data || resPetualang.data);
+
+      const resLogRefresh = await axios.get(`${BASE_URL}/logactivity`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { id_misi: misi.id_misi },
+      });
+      const logs = resLogRefresh.data.data || resLogRefresh.data;
+      if (Array.isArray(logs) && logs.length > 0) {
+        const sortedLogs = [...logs].sort(
+          (a, b) => new Date(a.tanggal_waktu) - new Date(b.tanggal_waktu)
+        );
+        const pendingLog = sortedLogs.find(
+          (item) => item.status_approval === "pending"
+        );
+        setLogEntry(pendingLog || sortedLogs[sortedLogs.length - 1]);
+      }
     } catch (error) {
-      setErrorMsg(error.response?.data?.message || "Gagal menyelesaikan misi.");
+      setErrorMsg(error.response?.data?.message || "Gagal menyetujui misi.");
       console.error(error);
     }
   };
 
-  const handleMisiGagal = async () => {
+  const handleRejectMission = async () => {
     setErrorMsg("");
     setSuccessMsg("");
 
@@ -195,36 +167,36 @@ const DetailMisiOwner = () => {
     try {
       const token = localStorage.getItem("accessToken");
 
-      // Update status misi ke "belum diambil" dan id_petualang menjadi null
-      await axios.put(
-        `${BASE_URL}/misi/${misi.id_misi}`,
-        { status_misi: "belum diambil", id_petualang: null },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      // Simpan log aktivitas gagal
       await axios.post(
-        `${BASE_URL}/logactivity`,
+        `${BASE_URL}/logactivity/reject-mission`,
         {
           id_petualang: petualangIdFromLog,
           id_misi: misi.id_misi,
-          aktivitas: "gagal misi",
-          keterangan: `Petualang ID ${petualangIdFromLog} gagal menyelesaikan misi "${misi.judul_misi}".`,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setSuccessMsg("Misi dibatalkan dan status dikembalikan ke 'belum diambil'.");
+      setSuccessMsg("Misi ditolak. Status dikembalikan agar bisa diulang.");
 
       // Refresh data misi
       const resRefresh = await axios.get(`${BASE_URL}/misi/${misi.id_misi}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMisi(resRefresh.data.data || resRefresh.data);
-      setPetualangIdFromLog(null);
-      setPetualangData(null);
+
+      const resLogRefresh = await axios.get(`${BASE_URL}/logactivity`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { id_misi: misi.id_misi },
+      });
+      const logs = resLogRefresh.data.data || resLogRefresh.data;
+      if (Array.isArray(logs) && logs.length > 0) {
+        const sortedLogs = [...logs].sort(
+          (a, b) => new Date(a.tanggal_waktu) - new Date(b.tanggal_waktu)
+        );
+        setLogEntry(sortedLogs[sortedLogs.length - 1]);
+      }
     } catch (error) {
-      setErrorMsg("Gagal membatalkan misi.");
+      setErrorMsg("Gagal menolak misi.");
       console.error(error);
     }
   };
@@ -254,6 +226,18 @@ const DetailMisiOwner = () => {
     }
   };
 
+  const historyCount = Array.isArray(logEntry?.history_pilihan)
+    ? logEntry.history_pilihan.length
+    : 0;
+  const canReview = Boolean(
+    misi &&
+      misi.status_misi === "aktif" &&
+      logEntry &&
+      logEntry.status_approval === "pending" &&
+      logEntry.summary_ai &&
+      petualangIdFromLog
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-blue-50">
@@ -273,10 +257,10 @@ const DetailMisiOwner = () => {
                 Konfirmasi Aksi
               </h3>
               <p className="mb-6 text-gray-600">
-                {confirmationAction === "selesai"
-                  ? "Apakah Anda yakin ingin menandai misi ini sebagai selesai?"
-                  : confirmationAction === "gagal"
-                    ? "Apakah Anda yakin ingin membatalkan misi ini?"
+                {confirmationAction === "approve"
+                  ? "Apakah Anda yakin ingin menyetujui keberhasilan misi ini?"
+                  : confirmationAction === "reject"
+                    ? "Apakah Anda yakin ingin menolak dan mengulang misi ini?"
                     : "Apakah Anda yakin ingin menghapus misi ini?"}
               </p>
               <div className="flex justify-end space-x-3">
@@ -341,7 +325,9 @@ const DetailMisiOwner = () => {
                 {misi.status_misi === "aktif" && petualangData && (
                   <div className="bg-blue-500 bg-opacity-30 p-3 rounded-lg">
                     <p className="text-sm font-semibold">Petualang:</p>
-                    <p className="font-medium">{petualangData.nama}</p>
+                    <p className="font-medium">
+                      {petualangData.nama || petualangData.username}
+                    </p>
                     <p className="text-xs">Level {petualangData.level}</p>
                   </div>
                 )}
@@ -353,6 +339,33 @@ const DetailMisiOwner = () => {
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Deskripsi Misi</h3>
                 <p className="text-gray-600 whitespace-pre-line">{misi.deskripsi}</p>
+              </div>
+
+              <div className="mb-6 bg-gray-900 text-gray-100 p-5 rounded-lg border border-gray-700">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                  <h3 className="text-lg font-semibold">Adventure Log</h3>
+                  {logEntry?.status_approval && (
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        logEntry.status_approval === "approved"
+                          ? "bg-green-600 text-white"
+                          : logEntry.status_approval === "rejected"
+                            ? "bg-red-600 text-white"
+                            : "bg-yellow-500 text-gray-900"
+                      }`}
+                    >
+                      {logEntry.status_approval.toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-400">
+                  Stage tercatat: {historyCount}/5
+                </p>
+                <div className="mt-3 whitespace-pre-line text-gray-200 text-sm leading-relaxed">
+                  {logEntry?.summary_ai
+                    ? logEntry.summary_ai
+                    : "Belum ada ringkasan petualangan. Petualang masih menjalani stage atau belum mencapai klimaks."}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -444,8 +457,13 @@ const DetailMisiOwner = () => {
                 {misi.status_misi === "aktif" && (
                   <div className="flex flex-wrap gap-3">
                     <button
-                      onClick={() => handleConfirmation("selesai")}
-                      className="flex-1 min-w-[200px] px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                      onClick={() => handleConfirmation("approve")}
+                      disabled={!canReview}
+                      className={`flex-1 min-w-[200px] px-6 py-3 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
+                        canReview
+                          ? "bg-green-600 text-white hover:bg-green-700"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -459,11 +477,16 @@ const DetailMisiOwner = () => {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span>Tandai Selesai</span>
+                      <span>Confirm Success</span>
                     </button>
                     <button
-                      onClick={() => handleConfirmation("gagal")}
-                      className="flex-1 min-w-[200px] px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2"
+                      onClick={() => handleConfirmation("reject")}
+                      disabled={!logEntry || logEntry.status_approval !== "pending"}
+                      className={`flex-1 min-w-[200px] px-6 py-3 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
+                        logEntry && logEntry.status_approval === "pending"
+                          ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -477,7 +500,7 @@ const DetailMisiOwner = () => {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span>Batalkan Misi</span>
+                      <span>Reject & Retake</span>
                     </button>
                   </div>
                 )}

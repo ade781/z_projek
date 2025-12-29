@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../utils";
 
 const DetailMisi = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [misi, setMisi] = useState(null);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
@@ -89,6 +90,10 @@ const DetailMisi = () => {
             setIsTakingMission(false);
         }
     };
+
+    const petualangId = Number(localStorage.getItem("id_petualang") || 0);
+    const assignedId = Number(misi?.id_petualang_ambil ?? misi?.id_petualang ?? 0);
+    const canPlayQuest = misi?.status_misi === "aktif" && petualangId && assignedId === petualangId;
 
     if (loading) return (
         <div className="flex justify-center items-center h-screen bg-amber-50">
@@ -245,10 +250,22 @@ const DetailMisi = () => {
                                     <>
                                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Ambil Misi Ini
-                                    </>
-                                )}
+                                    </svg>
+                                    Ambil Misi Ini
+                                </>
+                            )}
+                            </button>
+                        )}
+
+                        {canPlayQuest && (
+                            <button
+                                onClick={() => navigate(`/quest/${misi.id_misi}`)}
+                                className="px-6 py-3 rounded-lg font-medium text-white shadow-md transition-all duration-300 flex items-center bg-emerald-600 hover:bg-emerald-700 hover:shadow-lg transform hover:-translate-y-1"
+                            >
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
+                                </svg>
+                                Mulai Quest
                             </button>
                         )}
                     </div>

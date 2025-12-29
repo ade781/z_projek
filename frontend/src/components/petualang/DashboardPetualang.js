@@ -253,7 +253,7 @@ const DashboardPetualang = () => {
 
 
             {/* Custom Animations */}
-            <style jsx global>{`
+            <style>{`
                 @keyframes float1 {
                     0%, 100% { transform: translateY(0) rotate(0deg); }
                     50% { transform: translateY(-20px) rotate(5deg); }

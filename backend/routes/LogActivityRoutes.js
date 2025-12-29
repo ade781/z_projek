@@ -7,7 +7,9 @@ import {
   deleteLogActivity,
   ambilMisi,
   getMisiByPetualang,
-  misiSelesai
+  playMissionNext,
+  approveMission,
+  rejectMission
 } from "../controllers/LogActivityController.js";
 
 import { verifyToken } from "../middleware/VerifyToken.js";
@@ -15,6 +17,9 @@ import { verifyToken } from "../middleware/VerifyToken.js";
 const router = express.Router();
 
 router.post("/ambil-misi", ambilMisi);
+router.post("/play-mission/next", verifyToken, playMissionNext);
+router.post("/approve-mission", verifyToken, approveMission);
+router.post("/reject-mission", verifyToken, rejectMission);
 router.get("/:id_petualang", verifyToken, getMisiByPetualang);
 
 

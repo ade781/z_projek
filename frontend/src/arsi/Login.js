@@ -245,7 +245,7 @@ const Login = () => {
             </div>
 
             {/* Custom animations */}
-            <style jsx global>{`
+            <style>{`
                 @keyframes flicker {
                     0%, 100% { opacity: 0.3; }
                     20%, 60% { opacity: 0.6; }
