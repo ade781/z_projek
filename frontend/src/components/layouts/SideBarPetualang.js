@@ -15,6 +15,7 @@ const SideBarPetualang = () => {
     { path: "/guild-hall", name: "Aula Guild", icon: "G" },
     { path: "/inventory", name: "Gudang", icon: "I" },
     { path: "/notifications", name: "Pesan Guild", icon: "N" },
+    { path: "/marketplace", name: "Marketplace", icon: "M" },
   ];
 
   return (

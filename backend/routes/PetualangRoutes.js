@@ -6,7 +6,9 @@ import {
   deletePetualang,
   getPetualangById,
   loginPetualang,
-  logoutPetualang
+  logoutPetualang,
+  banPetualang,
+  unbanPetualang
 } from "../controllers/PetualangController.js";
 
 import { refreshToken } from "../controllers/RefreshToken.js";
@@ -20,6 +22,8 @@ router.get('/token', refreshToken);
 // Auth routes (login/logout)
 router.post('/login', loginPetualang);
 router.delete('/logout', logoutPetualang);
+router.post('/ban/:id', verifyToken, banPetualang);
+router.post('/unban/:id', verifyToken, unbanPetualang);
 
 // CRUD petualang
 router.get('/', verifyToken, getPetualangs);

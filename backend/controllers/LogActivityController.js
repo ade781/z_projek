@@ -16,6 +16,8 @@ import { enforceCooldown } from "../services/AntiCheatService.js";
 const STAGE_MAX = 5;
 const ACTION_COOLDOWN_MS = 3000;
 const AMBIL_COOLDOWN_MS = 5000;
+const REPUTASI_GAIN = 5;
+const REPUTASI_LOSS = 30;
 
 const getRequiredLevelForStage = (baseLevel, stage) => {
   if (stage <= 2) return baseLevel;
@@ -162,6 +164,14 @@ export const ambilMisi = async (req, res) => {
     if (!petualang)
       return res.status(404).json({ message: "Petualang tidak ditemukan" });
 
+    if (
+      petualang.is_banned &&
+      petualang.banned_until &&
+      new Date(petualang.banned_until) > new Date()
+    ) {
+      return res.status(403).json({ message: "Petualang sedang diblokir." });
+    }
+
     const cooldown = enforceCooldown(petualang.last_misi_ambil_at, AMBIL_COOLDOWN_MS);
     if (!cooldown.allowed) {
       return res.status(429).json({
@@ -172,6 +182,10 @@ export const ambilMisi = async (req, res) => {
 
     const misi = await Misi.findOne({ where: { id_misi } });
     if (!misi) return res.status(404).json({ message: "Misi tidak ditemukan" });
+
+    if (misi.min_reputasi && petualang.reputasi < misi.min_reputasi) {
+      return res.status(403).json({ message: "Reputasi terlalu rendah untuk misi ini" });
+    }
 
     if (petualang.level < misi.level_required) {
       return res.status(403).json({ message: "Level belum memenuhi syarat" });
@@ -297,6 +311,14 @@ export const playMissionNext = async (req, res) => {
     });
     if (!petualang)
       return res.status(404).json({ message: "Petualang tidak ditemukan" });
+
+    if (
+      petualang.is_banned &&
+      petualang.banned_until &&
+      new Date(petualang.banned_until) > new Date()
+    ) {
+      return res.status(403).json({ message: "Petualang sedang diblokir." });
+    }
 
     const cooldown = enforceCooldown(petualang.last_action_at, ACTION_COOLDOWN_MS);
     if (!cooldown.allowed) {
@@ -555,6 +577,7 @@ export const approveMission = async (req, res) => {
     const jumlahMisiSelesai =
       (petualang.jumlah_misi_selesai || 0) + 1;
     const streakSelesai = (petualang.streak_selesai || 0) + 1;
+    const reputasiBaru = Math.min(100, (petualang.reputasi || 0) + REPUTASI_GAIN);
 
     await Petualang.update(
       {
@@ -564,6 +587,7 @@ export const approveMission = async (req, res) => {
         level: levelBaru,
         streak_selesai: streakSelesai,
         last_completed_at: new Date(),
+        reputasi: reputasiBaru,
       },
       { where: { id_petualang } }
     );
@@ -639,10 +663,11 @@ export const rejectMission = async (req, res) => {
       { where: { id_log: log.id_log } }
     );
 
-    await Petualang.update(
-      { streak_selesai: 0 },
-      { where: { id_petualang } }
-    );
+    const petualang = await Petualang.findOne({ where: { id_petualang } });
+    if (petualang) {
+      const reputasiBaru = Math.max(0, (petualang.reputasi || 0) - REPUTASI_LOSS);
+      await petualang.update({ streak_selesai: 0, reputasi: reputasiBaru });
+    }
 
     await Misi.update(
       { status_misi: "belum diambil", id_petualang: null, id_petualang_ambil: null },

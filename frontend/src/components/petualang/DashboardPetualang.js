@@ -204,6 +204,16 @@ const DashboardPetualang = () => {
                                 <h3 className="text-center text-sm text-indigo-300 mb-1">Progress Level</h3>
                                 <p className="text-center text-xl font-bold text-white">{percentProgress.toFixed(1)}%</p>
                             </div>
+                            {/* Reputasi */}
+                            <div className="bg-indigo-900/40 rounded-xl p-4 border border-indigo-700/50 hover:bg-indigo-800/60 transition-colors">
+                                <div className="flex items-center justify-center w-12 h-12 bg-amber-500/20 rounded-lg mb-2 mx-auto">
+                                    <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 1.657-1.343 3-3 3m0 0c-1.657 0-3-1.343-3-3m3 3v4m3-4a3 3 0 01-3 3m0-10a3 3 0 013-3m0 0a3 3 0 013 3m-3-3v4m-3-4a3 3 0 00-3 3" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-center text-sm text-indigo-300 mb-1">Reputasi</h3>
+                                <p className="text-center text-xl font-bold text-white">{petualang.reputasi ?? 0}</p>
+                            </div>
                         </div>
 
                         {/* XP Progress Bar */}

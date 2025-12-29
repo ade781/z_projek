@@ -14,6 +14,7 @@ import NotificationRoute from "./routes/NotificationRoutes.js";
 import WargaDesaRoute from "./routes/WargaDesaRoutes.js";
 import MisiRequestRoute from "./routes/MisiRequestRoutes.js";
 import TopupRoute from "./routes/TopupRoutes.js";
+import MarketRoute from "./routes/MarketRoutes.js";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
@@ -56,5 +57,6 @@ app.use("/notification", NotificationRoute);
 app.use("/warga-desa", WargaDesaRoute);
 app.use("/misi-request", MisiRequestRoute);
 app.use("/topup", TopupRoute);
+app.use("/market", MarketRoute);
 
 app.listen(5000, () => console.log("Server connected"));

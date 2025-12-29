@@ -133,7 +133,7 @@ const RequestMisiOwner = () => {
                       {request.deskripsi}
                     </p>
                     <p className="text-xs text-yellow-200 mt-2">
-                      Warga: {request.warga_desa?.nama || "Warga"} | Koin: {request.hadiah_koin}
+                      Warga: {request.warga_desa?.nama || "Warga"} | Koin: {request.hadiah_koin} | Min Rep: {request.min_reputasi || 0}
                     </p>
                   </div>
                     <span className="text-xs px-3 py-1 rounded-full bg-yellow-400/20 text-yellow-200">

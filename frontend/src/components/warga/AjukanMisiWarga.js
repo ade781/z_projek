@@ -8,6 +8,7 @@ const AjukanMisiWarga = () => {
     judul_misi: "",
     deskripsi: "",
     hadiah_koin: 0,
+    min_reputasi: 0,
   });
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -36,7 +37,10 @@ const AjukanMisiWarga = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const parsedValue = name === "hadiah_koin" ? parseInt(value, 10) || 0 : value;
+    const parsedValue =
+      name === "hadiah_koin" || name === "min_reputasi"
+        ? parseInt(value, 10) || 0
+        : value;
     setForm((prev) => ({ ...prev, [name]: parsedValue }));
   };
 
@@ -47,12 +51,17 @@ const AjukanMisiWarga = () => {
     setIsSubmitting(true);
 
     try {
+      if (form.hadiah_koin > saldo) {
+        setErrorMsg("Koin tidak cukup. Ajukan topup terlebih dulu.");
+        setIsSubmitting(false);
+        return;
+      }
       await axios.post(`${BASE_URL}/misi-request`, {
         id_warga_desa,
         ...form,
       });
       setSuccessMsg("Pengajuan misi berhasil dikirim.");
-      setForm({ judul_misi: "", deskripsi: "", hadiah_koin: 0 });
+      setForm({ judul_misi: "", deskripsi: "", hadiah_koin: 0, min_reputasi: 0 });
       fetchRequests();
     } catch (error) {
       setErrorMsg(error.response?.data?.message || "Gagal mengajukan misi.");
@@ -146,6 +155,20 @@ const AjukanMisiWarga = () => {
                   </p>
                 )}
               </div>
+              <div>
+                <label className="block text-emerald-200 mb-1 text-sm uppercase tracking-wider">
+                  Minimum Reputasi
+                </label>
+                <input
+                  type="number"
+                  name="min_reputasi"
+                  value={form.min_reputasi}
+                  onChange={handleChange}
+                  min="0"
+                  max="100"
+                  className="w-full px-4 py-3 bg-slate-800/70 border-b-2 border-emerald-500 text-white outline-none"
+                />
+              </div>
 
               {errorMsg && (
                 <div className="text-red-400 bg-red-900/40 p-2 rounded">{errorMsg}</div>
@@ -200,7 +223,7 @@ const AjukanMisiWarga = () => {
                     </span>
                   </div>
                   <div className="mt-3 text-xs text-emerald-200/70">
-                    Koin: {req.hadiah_koin} | Level: {req.level_required || "-"} | XP: {req.hadiah_xp || "-"}
+                    Koin: {req.hadiah_koin} | Min Rep: {req.min_reputasi || 0} | Level: {req.level_required || "-"} | XP: {req.hadiah_xp || "-"}
                   </div>
                   {req.catatan_owner && (
                     <div className="mt-2 text-xs text-emerald-100/70">

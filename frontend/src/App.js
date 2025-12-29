@@ -5,6 +5,8 @@ import LoginWarga from "./components/warga/LoginWarga";
 import RegisterWarga from "./components/warga/RegisterWarga";
 import AjukanMisiWarga from "./components/warga/AjukanMisiWarga";
 import TopupWarga from "./components/warga/TopupWarga";
+import WargaDashboard from "./components/warga/WargaDashboard";
+import MarketWarga from "./components/warga/MarketWarga";
 import QuestCanvas from "./components/petualang/QuestCanvas";
 import PetualangRoutes from "./components/routes/petualangroutes";
 import OwnerRoutes from "./components/routes/ownerroutes";
@@ -18,8 +20,10 @@ function App() {
         <Route path="/login-owner" element={<LoginOwner />} />
         <Route path="/login-warga" element={<LoginWarga />} />
         <Route path="/register-warga" element={<RegisterWarga />} />
+        <Route path="/warga-dashboard" element={<WargaDashboard />} />
         <Route path="/ajukan-misi" element={<AjukanMisiWarga />} />
         <Route path="/topup-warga" element={<TopupWarga />} />
+        <Route path="/market-warga" element={<MarketWarga />} />
         <Route
           path="/quest/:id"
           element={

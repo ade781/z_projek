@@ -252,3 +252,36 @@ export async function logoutPetualang(req, res) {
         });
     }
 }
+
+// BAN PETUALANG (owner action)
+export async function banPetualang(req, res) {
+    try {
+        const { id } = req.params;
+        const { days } = req.body;
+        const petualang = await Petualang.findOne({ where: { id_petualang: id } });
+        if (!petualang) {
+            return res.status(404).json({ message: "Petualang tidak ditemukan" });
+        }
+        const banDays = Number(days) || 7;
+        const bannedUntil = new Date();
+        bannedUntil.setDate(bannedUntil.getDate() + banDays);
+        await petualang.update({ is_banned: true, banned_until: bannedUntil });
+        res.status(200).json({ message: "Petualang diblokir sementara", banned_until: bannedUntil });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export async function unbanPetualang(req, res) {
+    try {
+        const { id } = req.params;
+        const petualang = await Petualang.findOne({ where: { id_petualang: id } });
+        if (!petualang) {
+            return res.status(404).json({ message: "Petualang tidak ditemukan" });
+        }
+        await petualang.update({ is_banned: false, banned_until: null });
+        res.status(200).json({ message: "Ban petualang dicabut" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}

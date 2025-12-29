@@ -5,7 +5,7 @@ import db from "../config/Database.js";
 
 export const createMisiRequest = async (req, res) => {
   try {
-    const { id_warga_desa, judul_misi, deskripsi, hadiah_koin } = req.body;
+    const { id_warga_desa, judul_misi, deskripsi, hadiah_koin, min_reputasi } = req.body;
     if (!id_warga_desa || !judul_misi || !deskripsi) {
       return res.status(400).json({ message: "Data wajib diisi lengkap." });
     }
@@ -15,11 +15,16 @@ export const createMisiRequest = async (req, res) => {
       return res.status(404).json({ message: "Warga tidak ditemukan." });
     }
 
+    if (min_reputasi !== undefined && (min_reputasi < 0 || min_reputasi > 100)) {
+      return res.status(400).json({ message: "Minimum reputasi harus 0-100." });
+    }
+
     const request = await MisiRequest.create({
       id_warga_desa,
       judul_misi,
       deskripsi,
       hadiah_koin: hadiah_koin || 0,
+      min_reputasi: min_reputasi || 0,
       status: "pending",
     });
 
@@ -101,6 +106,7 @@ export const approveMisiRequest = async (req, res) => {
         hadiah_koin: request.hadiah_koin,
         hadiah_xp,
         level_required,
+        min_reputasi: request.min_reputasi || 0,
         status_misi: "belum diambil",
         id_pembuat: id_owner,
       },

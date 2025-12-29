@@ -23,7 +23,7 @@ const LoginWarga = () => {
 
       localStorage.setItem("id_warga_desa", res.data.data.id_warga_desa);
       localStorage.setItem("nama_warga", res.data.data.nama);
-      navigate("/ajukan-misi");
+      navigate("/warga-dashboard");
     } catch (error) {
       setErrorMsg("Username atau password salah.");
     } finally {

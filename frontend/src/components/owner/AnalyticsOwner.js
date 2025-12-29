@@ -81,12 +81,20 @@ const AnalyticsOwner = () => {
               <p>Petualang Terlibat: {stats.petualang_terlibat}</p>
               <p>Rata-rata XP: {stats.avg_reward_xp}</p>
               <p>Rata-rata Koin: {stats.avg_reward_koin}</p>
+              <p>Rata-rata Reputasi: {stats.avg_reputasi}</p>
+              <p>Di bawah standar: {stats.reputasi_below_count}</p>
               <p>Approved: {stats.approval.approved}</p>
               <p>Rejected: {stats.approval.rejected}</p>
               <p>Pending: {stats.approval.pending}</p>
             </div>
           </div>
         </div>
+
+        {stats.reputasi_warning && (
+          <div className="mt-6 bg-red-500/20 border border-red-400/40 text-red-100 p-4 rounded-xl">
+            {stats.reputasi_warning}
+          </div>
+        )}
       </div>
     </div>
   );

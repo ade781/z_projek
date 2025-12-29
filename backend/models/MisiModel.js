@@ -29,6 +29,10 @@ const Misi = db.define(
       type: DataTypes.INTEGER,
       defaultValue: 1,
     },
+    min_reputasi: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     status_misi: {
       type: DataTypes.ENUM("belum diambil", "aktif", "batal", "selesai"),
       defaultValue: "belum diambil",

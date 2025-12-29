@@ -10,6 +10,7 @@ const EditMisi = () => {
         hadiah_koin: 0,
         hadiah_xp: 0,
         level_required: 1,
+        min_reputasi: 0,
         is_guild_misi: false,
         max_participants: 1,
     });
@@ -36,6 +37,7 @@ const EditMisi = () => {
                     hadiah_koin: data.hadiah_koin,
                     hadiah_xp: data.hadiah_xp,
                     level_required: data.level_required,
+                    min_reputasi: data.min_reputasi || 0,
                     is_guild_misi: data.is_guild_misi || false,
                     max_participants: data.max_participants || 1,
                 });
@@ -53,7 +55,7 @@ const EditMisi = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         const parsedValue =
-            ["hadiah_koin", "hadiah_xp", "level_required", "max_participants"].includes(name)
+            ["hadiah_koin", "hadiah_xp", "level_required", "max_participants", "min_reputasi"].includes(name)
                 ? parseInt(value) || 0
                 : value;
 
@@ -86,6 +88,10 @@ const EditMisi = () => {
         }
         if (form.level_required < 1 || form.level_required > 12) {
             setErrorMsg("Level required harus antara 1-12");
+            return false;
+        }
+        if (form.min_reputasi < 0 || form.min_reputasi > 100) {
+            setErrorMsg("Minimum reputasi harus antara 0-100");
             return false;
         }
         if (form.is_guild_misi && (form.max_participants < 2 || form.max_participants > 10)) {
@@ -292,6 +298,21 @@ const EditMisi = () => {
                                     </div>
                                 </div>
 
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Minimum Reputasi
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="min_reputasi"
+                                        value={form.min_reputasi}
+                                        onChange={handleChange}
+                                        min="0"
+                                        max="100"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
+
                                 {/* Guild Mission Toggle */}
                                 <div className="flex items-center space-x-3">
                                     <input
@@ -420,6 +441,12 @@ const EditMisi = () => {
                                         <p className="text-sm text-gray-500">Level Required</p>
                                         <p className="text-xl font-bold text-blue-600">
                                             Level {form.level_required}
+                                        </p>
+                                    </div>
+                                    <div className="bg-blue-50 p-4 rounded-lg">
+                                        <p className="text-sm text-gray-500">Minimum Reputasi</p>
+                                        <p className="text-xl font-bold text-blue-600">
+                                            {form.min_reputasi}
                                         </p>
                                     </div>
                                 </div>

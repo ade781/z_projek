@@ -33,6 +33,10 @@ const MisiRequest = db.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    min_reputasi: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     status: {
       type: DataTypes.ENUM("pending", "approved", "rejected"),
       defaultValue: "pending",

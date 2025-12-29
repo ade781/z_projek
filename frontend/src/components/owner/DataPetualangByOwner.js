@@ -53,6 +53,9 @@ const DataPetualang = () => {
                         koin: p.koin || 0,
                         jumlah_misi_selesai: p.jumlah_misi_selesai || 0,
                         poin_pengalaman: p.poin_pengalaman || 0,
+                        reputasi: p.reputasi || 0,
+                        is_banned: p.is_banned || false,
+                        banned_until: p.banned_until,
                         created_at: p.created_at
                     }))
                     : [];
@@ -127,6 +130,46 @@ const DataPetualang = () => {
         } catch (error) {
             setErrorMsg("Terjadi kesalahan saat menghapus petualang.");
             console.error(error);
+        }
+    };
+
+    const handleBan = async (petualang, days = 7) => {
+        try {
+            const token = localStorage.getItem("accessToken");
+            await axios.post(
+                `${BASE_URL}/petualang/ban/${petualang.id_petualang}`,
+                { days },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setPetualangs((prev) =>
+                prev.map((p) =>
+                    p.id_petualang === petualang.id_petualang
+                        ? { ...p, is_banned: true }
+                        : p
+                )
+            );
+        } catch (error) {
+            setErrorMsg("Gagal memblokir petualang.");
+        }
+    };
+
+    const handleUnban = async (petualang) => {
+        try {
+            const token = localStorage.getItem("accessToken");
+            await axios.post(
+                `${BASE_URL}/petualang/unban/${petualang.id_petualang}`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setPetualangs((prev) =>
+                prev.map((p) =>
+                    p.id_petualang === petualang.id_petualang
+                        ? { ...p, is_banned: false, banned_until: null }
+                        : p
+                )
+            );
+        } catch (error) {
+            setErrorMsg("Gagal mencabut ban petualang.");
         }
     };
 
@@ -286,6 +329,15 @@ const DataPetualang = () => {
                                     </th>
                                     <th
                                         scope="col"
+                                        className="px-6 py-3 text-left text-xs font-medium text-blue-800 uppercase tracking-wider cursor-pointer"
+                                        onClick={() => handleSort("reputasi")}
+                                    >
+                                        <div className="flex items-center">
+                                            Reputasi {getSortIcon("reputasi")}
+                                        </div>
+                                    </th>
+                                    <th
+                                        scope="col"
                                         className="px-6 py-3 text-left text-xs font-medium text-blue-800 uppercase tracking-wider"
                                     >
                                         Aksi
@@ -353,33 +405,55 @@ const DataPetualang = () => {
                                                     {p.poin_pengalaman}
                                                 </div>
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <span className={`px-2 py-1 rounded-full text-xs ${p.reputasi < 40 ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+                                                    {p.reputasi}
+                                                </span>
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <button
-                                                    onClick={() => handleDeleteClick(p)}
-                                                    className="text-red-600 hover:text-red-900 transition-colors flex items-center"
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-5 w-5 mr-1"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
+                                                <div className="flex flex-col gap-2">
+                                                    <button
+                                                        onClick={() => handleDeleteClick(p)}
+                                                        className="text-red-600 hover:text-red-900 transition-colors flex items-center"
                                                     >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                        />
-                                                    </svg>
-                                                    Hapus
-                                                </button>
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            className="h-5 w-5 mr-1"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                            />
+                                                        </svg>
+                                                        Hapus
+                                                    </button>
+                                                    {p.is_banned ? (
+                                                        <button
+                                                            onClick={() => handleUnban(p)}
+                                                            className="text-green-600 hover:text-green-900 transition-colors flex items-center"
+                                                        >
+                                                            Cabut Ban
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => handleBan(p, 7)}
+                                                            className="text-yellow-600 hover:text-yellow-800 transition-colors flex items-center"
+                                                        >
+                                                            Ban 7 hari
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                                        <td colSpan="8" className="px-6 py-4 text-center text-gray-500">
                                             Tidak ada petualang yang ditemukan
                                         </td>
                                     </tr>

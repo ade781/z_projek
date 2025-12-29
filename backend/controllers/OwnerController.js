@@ -1,6 +1,7 @@
 import Owner from "../models/OwnerModel.js";
 import Misi from "../models/MisiModel.js";
 import LogActivity from "../models/LogActivityModel.js";
+import Petualang from "../models/PetualangModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
@@ -275,6 +276,17 @@ export async function getOwnerAnalytics(req, res) {
       completedMisi.reduce((sum, m) => sum + (m.hadiah_koin || 0), 0) /
       (completedMisi.length || 1);
 
+    const petualangs = await Petualang.findAll();
+    const avgReputasi =
+      petualangs.reduce((sum, p) => sum + (p.reputasi || 0), 0) /
+      (petualangs.length || 1);
+    const reputasiThreshold = 40;
+    const belowCount = petualangs.filter((p) => (p.reputasi || 0) < reputasiThreshold).length;
+    const warning =
+      avgReputasi < reputasiThreshold
+        ? "Rata-rata reputasi petualang rendah. Pertimbangkan tindakan disiplin."
+        : null;
+
     res.status(200).json({
       data: {
         total_misi: totalMisi,
@@ -286,6 +298,10 @@ export async function getOwnerAnalytics(req, res) {
         approval: approvalStats,
         avg_reward_xp: Number(avgXp.toFixed(1)),
         avg_reward_koin: Number(avgKoin.toFixed(1)),
+        avg_reputasi: Number(avgReputasi.toFixed(1)),
+        reputasi_threshold: reputasiThreshold,
+        reputasi_below_count: belowCount,
+        reputasi_warning: warning,
       },
     });
   } catch (error) {

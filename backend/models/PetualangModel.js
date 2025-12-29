@@ -38,6 +38,18 @@ const Petualang = db.define(
             type: DataTypes.INTEGER,
             defaultValue: 0,
         },
+        reputasi: {
+            type: DataTypes.INTEGER,
+            defaultValue: 50,
+        },
+        is_banned: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        banned_until: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
         refresh_token: {
             type: DataTypes.TEXT,
             allowNull: true,

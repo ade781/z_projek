@@ -2,6 +2,7 @@ import Misi from "../models/MisiModel.js";
 import LogActivity from "../models/LogActivityModel.js";
 import Owner from "../models/OwnerModel.js";
 import MisiParticipant from "../models/MisiParticipantModel.js";
+import Petualang from "../models/PetualangModel.js";
 
 // GET ALL MISI
 export const getMisis = async (req, res) => {
@@ -58,6 +59,7 @@ export const createMisi = async (req, res) => {
             hadiah_xp,
             status_misi,
             level_required,
+            min_reputasi,
             id_pembuat,
             is_guild_misi,
             max_participants,
@@ -67,6 +69,13 @@ export const createMisi = async (req, res) => {
             return res.status(400).json({
                 status: "Error",
                 message: "Judul misi dan ID pembuat wajib diisi",
+            });
+        }
+
+        if (min_reputasi !== undefined && (min_reputasi < 0 || min_reputasi > 100)) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Minimum reputasi harus 0-100",
             });
         }
 
@@ -93,6 +102,7 @@ export const createMisi = async (req, res) => {
             hadiah_xp,
             status_misi,
             level_required,
+            min_reputasi,
             id_pembuat,
             is_guild_misi,
             max_participants,
@@ -146,6 +156,7 @@ export const updateMisi = async (req, res) => {
             hadiah_xp,
             status_misi,
             level_required,
+            min_reputasi,
             id_pembuat,
             id_petualang,
             id_petualang_ambil,
@@ -162,6 +173,24 @@ export const updateMisi = async (req, res) => {
             });
         }
 
+        if (min_reputasi !== undefined && (min_reputasi < 0 || min_reputasi > 100)) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Minimum reputasi harus 0-100",
+            });
+        }
+
+        if (status_misi === "batal" && misi.status_misi !== "batal") {
+            const targetId = misi.id_petualang_ambil ?? misi.id_petualang;
+            if (targetId) {
+                const petualang = await Petualang.findOne({ where: { id_petualang: targetId } });
+                if (petualang) {
+                    const reputasiBaru = Math.max(0, (petualang.reputasi || 0) - 30);
+                    await petualang.update({ reputasi: reputasiBaru });
+                }
+            }
+        }
+
         await Misi.update(
             {
                 judul_misi,
@@ -170,6 +199,7 @@ export const updateMisi = async (req, res) => {
                 hadiah_xp,
                 status_misi,
                 level_required,
+                min_reputasi,
                 id_pembuat,
                 is_guild_misi,
                 max_participants,
@@ -199,6 +229,22 @@ export const ambilMisi = async (req, res) => {
         const misi = await Misi.findOne({ where: { id_misi } });
         if (!misi) {
             return res.status(404).json({ status: "Error", message: "Misi tidak ditemukan" });
+        }
+
+        const petualang = await Petualang.findOne({ where: { id_petualang } });
+        if (!petualang) {
+            return res.status(404).json({ status: "Error", message: "Petualang tidak ditemukan" });
+        }
+
+        if (petualang.is_banned && petualang.banned_until && new Date(petualang.banned_until) > new Date()) {
+            return res.status(403).json({ status: "Error", message: "Petualang sedang diblokir." });
+        }
+
+        if (misi.min_reputasi && petualang.reputasi < misi.min_reputasi) {
+            return res.status(403).json({
+                status: "Error",
+                message: "Reputasi terlalu rendah untuk mengambil misi ini",
+            });
         }
         if (misi.is_guild_misi) {
             const currentCount = await MisiParticipant.count({ where: { id_misi } });

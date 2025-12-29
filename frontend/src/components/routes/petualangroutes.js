@@ -12,6 +12,7 @@ import DailyWeeklyQuests from "../petualang/DailyWeeklyQuests";
 import GuildHall from "../petualang/GuildHall";
 import Inventory from "../petualang/Inventory";
 import Notifications from "../petualang/Notifications";
+import MarketPetualang from "../petualang/MarketPetualang";
 
 const PetualangRoutes = () => (
   <>
@@ -100,6 +101,14 @@ const PetualangRoutes = () => (
       element={
         <LayoutPetualang>
           <Notifications />
+        </LayoutPetualang>
+      }
+    />
+    <Route
+      path="/marketplace"
+      element={
+        <LayoutPetualang>
+          <MarketPetualang />
         </LayoutPetualang>
       }
     />
