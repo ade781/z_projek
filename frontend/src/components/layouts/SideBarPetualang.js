@@ -7,10 +7,14 @@ const SideBarPetualang = () => {
 
   // Daftar menu sidebar dengan ikon petualangan
   const menuItems = [
-    { path: "/misi", name: "Ekspedisi", icon: "🗺️" },
-    { path: "/dashboard-misi-petualang", name: "Peta Perjalanan", icon: "🧭" },
-    { path: "/leaderboard-petualang", name: "Papan Juara", icon: "🏅" },
-
+    { path: "/misi", name: "Ekspedisi", icon: "E" },
+    { path: "/dashboard-misi-petualang", name: "Peta Perjalanan", icon: "P" },
+    { path: "/leaderboard-petualang", name: "Papan Juara", icon: "L" },
+    { path: "/achievements", name: "Lencana", icon: "A" },
+    { path: "/daily-quests", name: "Quest Harian", icon: "Q" },
+    { path: "/guild-hall", name: "Aula Guild", icon: "G" },
+    { path: "/inventory", name: "Gudang", icon: "I" },
+    { path: "/notifications", name: "Pesan Guild", icon: "N" },
   ];
 
   return (
@@ -72,3 +76,4 @@ const SideBarPetualang = () => {
 };
 
 export default SideBarPetualang;
+

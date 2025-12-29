@@ -1,6 +1,7 @@
 import Misi from "../models/MisiModel.js";
 import LogActivity from "../models/LogActivityModel.js";
 import Owner from "../models/OwnerModel.js";
+import MisiParticipant from "../models/MisiParticipantModel.js";
 
 // GET ALL MISI
 export const getMisis = async (req, res) => {
@@ -58,12 +59,30 @@ export const createMisi = async (req, res) => {
             status_misi,
             level_required,
             id_pembuat,
+            is_guild_misi,
+            max_participants,
         } = req.body;
 
         if (!judul_misi || !id_pembuat) {
             return res.status(400).json({
                 status: "Error",
                 message: "Judul misi dan ID pembuat wajib diisi",
+            });
+        }
+
+        const owner = await Owner.findOne({ where: { id_owner: id_pembuat } });
+        if (!owner) {
+            return res.status(404).json({
+                status: "Error",
+                message: "Owner tidak ditemukan",
+            });
+        }
+
+        const biayaMisi = Number(hadiah_koin || 0);
+        if (owner.total_koin < biayaMisi) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Koin owner tidak cukup untuk membuat misi",
             });
         }
 
@@ -75,7 +94,11 @@ export const createMisi = async (req, res) => {
             status_misi,
             level_required,
             id_pembuat,
+            is_guild_misi,
+            max_participants,
         });
+
+        await owner.update({ total_koin: owner.total_koin - biayaMisi });
 
         res.status(201).json({
             status: "Success",
@@ -125,7 +148,9 @@ export const updateMisi = async (req, res) => {
             level_required,
             id_pembuat,
             id_petualang,
-            id_petualang_ambil
+            id_petualang_ambil,
+            is_guild_misi,
+            max_participants
         } = req.body;
 
         // Validasi status_misi (optional)
@@ -146,6 +171,8 @@ export const updateMisi = async (req, res) => {
                 status_misi,
                 level_required,
                 id_pembuat,
+                is_guild_misi,
+                max_participants,
                 id_petualang: id_petualang ?? id_petualang_ambil,
                 id_petualang_ambil: id_petualang_ambil ?? id_petualang
             },
@@ -173,11 +200,35 @@ export const ambilMisi = async (req, res) => {
         if (!misi) {
             return res.status(404).json({ status: "Error", message: "Misi tidak ditemukan" });
         }
+        if (misi.is_guild_misi) {
+            const currentCount = await MisiParticipant.count({ where: { id_misi } });
+            if (currentCount >= (misi.max_participants || 1)) {
+                return res.status(400).json({ status: "Error", message: "Slot party sudah penuh" });
+            }
+
+            const existing = await MisiParticipant.findOne({
+                where: { id_misi, id_petualang },
+            });
+            if (existing) {
+                return res.status(400).json({ status: "Error", message: "Petualang sudah tergabung di party" });
+            }
+
+            await MisiParticipant.create({ id_misi, id_petualang, status: "aktif" });
+
+            if (misi.status_misi === "belum diambil") {
+                await Misi.update(
+                    { status_misi: "aktif" },
+                    { where: { id_misi } }
+                );
+            }
+
+            return res.status(200).json({ status: "Success", message: "Petualang bergabung ke party misi" });
+        }
+
         if (misi.status_misi !== "belum diambil") {
             return res.status(400).json({ status: "Error", message: "Misi sudah diambil atau tidak bisa diambil" });
         }
 
-        // Update status misi jadi 'aktif' dan simpan id_petualang
         await Misi.update(
             {
                 status_misi: "aktif",
@@ -186,7 +237,6 @@ export const ambilMisi = async (req, res) => {
             },
             { where: { id_misi } }
         );
-
 
         res.status(200).json({ status: "Success", message: "Status misi berhasil diperbarui" });
     } catch (error) {
@@ -221,5 +271,18 @@ export const deleteMisi = async (req, res) => {
             status: "Error",
             message: error.message,
         });
+    }
+};
+
+// GET PARTICIPANTS
+export const getMisiParticipants = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const participants = await MisiParticipant.findAll({
+            where: { id_misi: id },
+        });
+        res.status(200).json({ status: "Success", data: participants });
+    } catch (error) {
+        res.status(500).json({ status: "Error", message: error.message });
     }
 };

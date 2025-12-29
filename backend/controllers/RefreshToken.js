@@ -1,4 +1,6 @@
 import User from "../models/UserModel.js";
+import Owner from "../models/OwnerModel.js";
+import Petualang from "../models/PetualangModel.js";
 import jwt from "jsonwebtoken";
 
 export const refreshToken = async (req, res) => {
@@ -7,22 +9,23 @@ export const refreshToken = async (req, res) => {
         console.log({ refreshToken })
         if (!refreshToken) return res.sendStatus(401);
         console.log("sudah lewat 401 di authcontroller")
-        const user = await User.findOne({
-            where: {
-                refresh_token: refreshToken
-            }
-        });
-        if (!user.refresh_token) return res.sendStatus(403);
-        else jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-            if (err) return res.sendStatus(403);
-            console.log("sudah lewat 403 ke dua di controller")
-            const userPlain = user.toJSON(); // Konversi ke object
-            const { password: _, refresh_token: __, ...safeUserData } = userPlain;
-            const accessToken = jwt.sign(safeUserData, process.env.ACCESS_TOKEN_SECRET, {
-                expiresIn: '30s'
+        const user =
+            (await User.findOne({ where: { refresh_token: refreshToken } })) ||
+            (await Owner.findOne({ where: { refresh_token: refreshToken } })) ||
+            (await Petualang.findOne({ where: { refresh_token: refreshToken } }));
+
+        if (!user?.refresh_token) return res.sendStatus(403);
+        else
+            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+                if (err) return res.sendStatus(403);
+                console.log("sudah lewat 403 ke dua di controller");
+                const userPlain = user.toJSON();
+                const { password: _, refresh_token: __, ...safeUserData } = userPlain;
+                const accessToken = jwt.sign(safeUserData, process.env.ACCESS_TOKEN_SECRET, {
+                    expiresIn: '300s'
+                });
+                res.json({ accessToken });
             });
-            res.json({ accessToken });
-        });
     } catch (error) {
         console.log(error);
     }

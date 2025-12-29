@@ -108,6 +108,8 @@ const MisiList = () => {
         return "bg-yellow-500";
       case "selesai":
         return "bg-green-500";
+      case "batal":
+        return "bg-red-600";
       default:
         return "bg-blue-500";
     }
@@ -193,7 +195,7 @@ const MisiList = () => {
             <div>
               <label className="block text-amber-300 mb-2 font-medium">Filter Status</label>
               <div className="flex flex-wrap gap-2">
-                {["semua", "belum diambil", "aktif", "selesai"].map((status) => (
+                {["semua", "belum diambil", "aktif", "selesai", "batal"].map((status) => (
                   <button
                     key={status}
                     onClick={() => setFilterStatus(status)}

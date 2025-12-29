@@ -6,6 +6,13 @@ import PetualangRoute from "./routes/PetualangRoutes.js";
 import MisiRoute from "./routes/MisiRoutes.js";
 import LogActivityRoute from "./routes/LogActivityRoutes.js";
 import OwnerRoute from "./routes/OwnerRoutes.js";
+import AchievementRoute from "./routes/AchievementRoutes.js";
+import QuestRoute from "./routes/QuestRoutes.js";
+import GuildRoute from "./routes/GuildRoutes.js";
+import InventoryRoute from "./routes/InventoryRoutes.js";
+import NotificationRoute from "./routes/NotificationRoutes.js";
+import WargaDesaRoute from "./routes/WargaDesaRoutes.js";
+import MisiRequestRoute from "./routes/MisiRequestRoutes.js";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
@@ -40,5 +47,12 @@ app.use("/petualang", PetualangRoute);
 app.use("/misi", MisiRoute);
 app.use("/logactivity", LogActivityRoute);
 app.use("/owner", OwnerRoute);
+app.use("/achievement", AchievementRoute);
+app.use("/quest", QuestRoute);
+app.use("/guild", GuildRoute);
+app.use("/inventory", InventoryRoute);
+app.use("/notification", NotificationRoute);
+app.use("/warga-desa", WargaDesaRoute);
+app.use("/misi-request", MisiRequestRoute);
 
 app.listen(5000, () => console.log("Server connected"));

@@ -20,11 +20,11 @@ const DashboardMisiPetualang = () => {
             }
 
             try {
-                const res = await axios.get(`${BASE_URL}/logactivity/${id_petualang}`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`
-                    }
-                });
+            const res = await axios.get(`${BASE_URL}/logactivity/petualang/${id_petualang}`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
                 setMisiList(res.data.data || []);
             } catch (err) {
                 setError("⚡ Gagal memuat misi. Coba lagi nanti!");

@@ -16,15 +16,15 @@ import { verifyToken } from "../middleware/VerifyToken.js";
 
 const router = express.Router();
 
-router.post("/ambil-misi", ambilMisi);
+router.post("/ambil-misi", verifyToken, ambilMisi);
 router.post("/play-mission/next", verifyToken, playMissionNext);
 router.post("/approve-mission", verifyToken, approveMission);
 router.post("/reject-mission", verifyToken, rejectMission);
-router.get("/:id_petualang", verifyToken, getMisiByPetualang);
+router.get("/petualang/:id_petualang", verifyToken, getMisiByPetualang);
 
 
 router.get("/", verifyToken, getLogActivities);
-router.get("/:id", verifyToken, getLogActivityById);
+router.get("/log/:id", verifyToken, getLogActivityById);
 router.post("/", verifyToken, createLogActivity);
 router.put("/:id", verifyToken, updateLogActivity);
 router.delete("/:id", verifyToken, deleteLogActivity);

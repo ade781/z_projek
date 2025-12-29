@@ -10,6 +10,8 @@ const EditMisi = () => {
         hadiah_koin: 0,
         hadiah_xp: 0,
         level_required: 1,
+        is_guild_misi: false,
+        max_participants: 1,
     });
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
@@ -34,6 +36,8 @@ const EditMisi = () => {
                     hadiah_koin: data.hadiah_koin,
                     hadiah_xp: data.hadiah_xp,
                     level_required: data.level_required,
+                    is_guild_misi: data.is_guild_misi || false,
+                    max_participants: data.max_participants || 1,
                 });
                 setLoading(false);
             } catch (error) {
@@ -49,13 +53,13 @@ const EditMisi = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         const parsedValue =
-            ["hadiah_koin", "hadiah_xp", "level_required"].includes(name)
+            ["hadiah_koin", "hadiah_xp", "level_required", "max_participants"].includes(name)
                 ? parseInt(value) || 0
                 : value;
 
         setForm((prev) => ({
             ...prev,
-            [name]: parsedValue,
+            [name]: name === "is_guild_misi" ? e.target.checked : parsedValue,
         }));
     };
 
@@ -82,6 +86,10 @@ const EditMisi = () => {
         }
         if (form.level_required < 1 || form.level_required > 12) {
             setErrorMsg("Level required harus antara 1-12");
+            return false;
+        }
+        if (form.is_guild_misi && (form.max_participants < 2 || form.max_participants > 10)) {
+            setErrorMsg("Max participants untuk misi guild harus 2-10");
             return false;
         }
         return true;
@@ -283,6 +291,37 @@ const EditMisi = () => {
                                         <span>Level 12</span>
                                     </div>
                                 </div>
+
+                                {/* Guild Mission Toggle */}
+                                <div className="flex items-center space-x-3">
+                                    <input
+                                        type="checkbox"
+                                        name="is_guild_misi"
+                                        checked={form.is_guild_misi}
+                                        onChange={handleChange}
+                                        className="h-4 w-4 text-blue-600"
+                                    />
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Misi Party / Guild
+                                    </label>
+                                </div>
+
+                                {form.is_guild_misi && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Max Participants
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="max_participants"
+                                            value={form.max_participants}
+                                            onChange={handleChange}
+                                            min="2"
+                                            max="10"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Form Actions */}
@@ -384,6 +423,15 @@ const EditMisi = () => {
                                         </p>
                                     </div>
                                 </div>
+
+                                {form.is_guild_misi && (
+                                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                                        <p className="text-sm text-gray-500">Misi Guild</p>
+                                        <p className="text-xl font-bold text-blue-600">
+                                            Maks {form.max_participants} petualang
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="flex justify-between">
                                     <button

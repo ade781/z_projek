@@ -15,6 +15,7 @@ const DetailMisiOwner = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
   const [petualangData, setPetualangData] = useState(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   useEffect(() => {
     const fetchMisiDanPetualang = async () => {
@@ -172,11 +173,13 @@ const DetailMisiOwner = () => {
         {
           id_petualang: petualangIdFromLog,
           id_misi: misi.id_misi,
+          alasan: rejectReason,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setSuccessMsg("Misi ditolak. Status dikembalikan agar bisa diulang.");
+      setRejectReason("");
 
       // Refresh data misi
       const resRefresh = await axios.get(`${BASE_URL}/misi/${misi.id_misi}`, {
@@ -366,6 +369,11 @@ const DetailMisiOwner = () => {
                     ? logEntry.summary_ai
                     : "Belum ada ringkasan petualangan. Petualang masih menjalani stage atau belum mencapai klimaks."}
                 </div>
+                {logEntry?.alasan_penolakan && (
+                  <div className="mt-3 text-sm text-red-300">
+                    Alasan penolakan terakhir: {logEntry.alasan_penolakan}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -456,6 +464,18 @@ const DetailMisiOwner = () => {
               <div className="border-t pt-6">
                 {misi.status_misi === "aktif" && (
                   <div className="flex flex-wrap gap-3">
+                    <div className="w-full">
+                      <label className="text-sm text-gray-600 mb-1 block">
+                        Alasan penolakan (opsional)
+                      </label>
+                      <textarea
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg p-2 text-sm"
+                        rows={2}
+                        placeholder="Contoh: Narasi kurang lengkap, ulangi lagi."
+                      />
+                    </div>
                     <button
                       onClick={() => handleConfirmation("approve")}
                       disabled={!canReview}

@@ -139,6 +139,15 @@ const Login = () => {
                     <span>Masuk sebagai Owner</span>
                     <span className="text-xl">🏰</span>
                 </button>
+                <p className="text-center text-gray-300 mt-6 mb-3">
+                    Anda <span className="font-bold text-emerald-300 bg-gray-800 px-2 py-1 rounded-md">Warga Desa</span>?
+                </p>
+                <button
+                    onClick={() => navigate("/login-warga")}
+                    className="w-full py-2 px-4 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 hover:shadow-lg hover:shadow-emerald-500/20"
+                >
+                    <span>Masuk sebagai Warga</span>
+                </button>
             </div>
 
             {/* Footer with animated coins */}
@@ -222,3 +231,4 @@ const Login = () => {
 };
 
 export default Login;
+

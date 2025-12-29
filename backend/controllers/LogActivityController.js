@@ -1,12 +1,21 @@
 import LogActivity from "../models/LogActivityModel.js";
 import Misi from "../models/MisiModel.js";
 import Petualang from "../models/PetualangModel.js";
+import PetualangItem from "../models/PetualangItemModel.js";
+import Item from "../models/ItemModel.js";
+import MisiParticipant from "../models/MisiParticipantModel.js";
 import {
   generateFinalSummary,
   generateStage,
 } from "../services/GeminiService.js";
+import { createNotification } from "../services/NotificationService.js";
+import { updateQuestProgress } from "../services/QuestService.js";
+import { evaluateAchievements } from "../services/AchievementService.js";
+import { enforceCooldown } from "../services/AntiCheatService.js";
 
 const STAGE_MAX = 5;
+const ACTION_COOLDOWN_MS = 3000;
+const AMBIL_COOLDOWN_MS = 5000;
 
 const getRequiredLevelForStage = (baseLevel, stage) => {
   if (stage <= 2) return baseLevel;
@@ -40,6 +49,37 @@ const normalizeHistory = (history) => {
     }
   }
   return [];
+};
+
+const applyActiveBuffs = async (id_petualang, baseXp, baseKoin) => {
+  const activeBuffs = await PetualangItem.findAll({
+    where: { id_petualang, is_active: true },
+    include: [Item],
+  });
+
+  let xpMultiplier = 1;
+  let koinMultiplier = 1;
+  const now = new Date();
+
+  for (const buff of activeBuffs) {
+    if (buff.expires_at && now > new Date(buff.expires_at)) {
+      await buff.update({ is_active: false, activated_at: null, expires_at: null });
+      continue;
+    }
+    if (buff.item?.type === "buff_xp") {
+      xpMultiplier = Math.max(xpMultiplier, buff.item.value || 1);
+    }
+    if (buff.item?.type === "buff_koin") {
+      koinMultiplier = Math.max(koinMultiplier, buff.item.value || 1);
+    }
+  }
+
+  return {
+    xp: Math.round(baseXp * xpMultiplier),
+    koin: Math.round(baseKoin * koinMultiplier),
+    xpMultiplier,
+    koinMultiplier,
+  };
 };
 
 // Get all log aktivitas
@@ -122,6 +162,14 @@ export const ambilMisi = async (req, res) => {
     if (!petualang)
       return res.status(404).json({ message: "Petualang tidak ditemukan" });
 
+    const cooldown = enforceCooldown(petualang.last_misi_ambil_at, AMBIL_COOLDOWN_MS);
+    if (!cooldown.allowed) {
+      return res.status(429).json({
+        message: "Terlalu cepat mengambil misi. Coba sebentar lagi.",
+        retry_after_ms: cooldown.remainingMs,
+      });
+    }
+
     const misi = await Misi.findOne({ where: { id_misi } });
     if (!misi) return res.status(404).json({ message: "Misi tidak ditemukan" });
 
@@ -146,6 +194,8 @@ export const ambilMisi = async (req, res) => {
       history_pilihan: [],
       status_approval: "pending",
     });
+
+    await petualang.update({ last_misi_ambil_at: new Date() });
 
     res.status(201).json({ message: "Misi berhasil diambil", data: logBaru });
   } catch (error) {
@@ -248,14 +298,33 @@ export const playMissionNext = async (req, res) => {
     if (!petualang)
       return res.status(404).json({ message: "Petualang tidak ditemukan" });
 
-    const assignedId = misi.id_petualang_ambil ?? misi.id_petualang;
-    if (
-      misi.status_misi !== "aktif" ||
-      Number(assignedId) !== Number(petualangId)
-    ) {
-      return res
-        .status(403)
-        .json({ message: "Misi belum aktif atau bukan untuk petualang ini" });
+    const cooldown = enforceCooldown(petualang.last_action_at, ACTION_COOLDOWN_MS);
+    if (!cooldown.allowed) {
+      return res.status(429).json({
+        message: "Terlalu cepat memilih aksi. Coba lagi sebentar.",
+        retry_after_ms: cooldown.remainingMs,
+      });
+    }
+
+    if (misi.is_guild_misi) {
+      const participant = await MisiParticipant.findOne({
+        where: { id_misi, id_petualang: petualangId },
+      });
+      if (misi.status_misi !== "aktif" || !participant) {
+        return res
+          .status(403)
+          .json({ message: "Misi belum aktif atau petualang belum bergabung" });
+      }
+    } else {
+      const assignedId = misi.id_petualang_ambil ?? misi.id_petualang;
+      if (
+        misi.status_misi !== "aktif" ||
+        Number(assignedId) !== Number(petualangId)
+      ) {
+        return res
+          .status(403)
+          .json({ message: "Misi belum aktif atau bukan untuk petualang ini" });
+      }
     }
 
     let log = await LogActivity.findOne({
@@ -426,6 +495,8 @@ export const playMissionNext = async (req, res) => {
       summary_ai: summary ? summary : log.summary_ai,
     });
 
+    await petualang.update({ last_action_at: new Date() });
+
     res.status(200).json({
       stage: stageToGenerate,
       narasi: stageResult.narasi,
@@ -470,11 +541,20 @@ export const approveMission = async (req, res) => {
     if (!petualang)
       return res.status(404).json({ message: "Petualang tidak ditemukan" });
 
-    const xpBaru = (petualang.poin_pengalaman || 0) + (misi.hadiah_xp || 0);
+    const rewardBaseXp = misi.hadiah_xp || 0;
+    const rewardBaseKoin = misi.hadiah_koin || 0;
+    const rewardWithBuff = await applyActiveBuffs(
+      id_petualang,
+      rewardBaseXp,
+      rewardBaseKoin
+    );
+
+    const xpBaru = (petualang.poin_pengalaman || 0) + rewardWithBuff.xp;
     const levelBaru = getLevelFromXP(xpBaru);
-    const koinBaru = (petualang.koin || 0) + (misi.hadiah_koin || 0);
+    const koinBaru = (petualang.koin || 0) + rewardWithBuff.koin;
     const jumlahMisiSelesai =
       (petualang.jumlah_misi_selesai || 0) + 1;
+    const streakSelesai = (petualang.streak_selesai || 0) + 1;
 
     await Petualang.update(
       {
@@ -482,6 +562,8 @@ export const approveMission = async (req, res) => {
         poin_pengalaman: xpBaru,
         jumlah_misi_selesai: jumlahMisiSelesai,
         level: levelBaru,
+        streak_selesai: streakSelesai,
+        last_completed_at: new Date(),
       },
       { where: { id_petualang } }
     );
@@ -492,12 +574,38 @@ export const approveMission = async (req, res) => {
       { where: { id_log: log.id_log } }
     );
 
+    const rejectedLog = await LogActivity.findOne({
+      where: { id_misi, id_petualang, status_approval: "rejected" },
+    });
+
+    await evaluateAchievements(id_petualang, {
+      streak_selesai: streakSelesai,
+      no_fail: !rejectedLog,
+    });
+
+    await updateQuestProgress(id_petualang, {
+      complete_misi: 1,
+      earn_koin: rewardWithBuff.koin,
+      earn_xp: rewardWithBuff.xp,
+    });
+
+    await createNotification(
+      id_petualang,
+      "Misi Disetujui!",
+      `Misi "${misi.judul_misi}" disetujui. Hadiah: ${rewardWithBuff.koin} koin & ${rewardWithBuff.xp} XP.`,
+      "approval"
+    );
+
     res.status(200).json({
       message: "Misi disetujui, hadiah diberikan",
       data: {
         koin: koinBaru,
         poin_pengalaman: xpBaru,
         level: levelBaru,
+        reward_koin: rewardWithBuff.koin,
+        reward_xp: rewardWithBuff.xp,
+        koin_multiplier: rewardWithBuff.koinMultiplier,
+        xp_multiplier: rewardWithBuff.xpMultiplier,
       },
     });
   } catch (error) {
@@ -525,14 +633,27 @@ export const rejectMission = async (req, res) => {
     await LogActivity.update(
       {
         status_approval: "rejected",
+        alasan_penolakan: alasan || null,
         keterangan: alasan ? `Ditolak: ${alasan}` : log.keterangan,
       },
       { where: { id_log: log.id_log } }
     );
 
+    await Petualang.update(
+      { streak_selesai: 0 },
+      { where: { id_petualang } }
+    );
+
     await Misi.update(
       { status_misi: "belum diambil", id_petualang: null, id_petualang_ambil: null },
       { where: { id_misi } }
+    );
+
+    await createNotification(
+      id_petualang,
+      "Misi Ditolak",
+      `Misi ditolak. ${alasan ? `Alasan: ${alasan}` : "Silakan ulangi misi."}`,
+      "approval"
     );
 
     res.status(200).json({

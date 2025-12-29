@@ -1,6 +1,9 @@
 import Owner from "../models/OwnerModel.js";
+import Misi from "../models/MisiModel.js";
+import LogActivity from "../models/LogActivityModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { Op } from "sequelize";
 
 // GET ALL OWNERS
 export async function getOwners(req, res) {
@@ -235,5 +238,57 @@ export async function logoutOwner(req, res) {
       status: "Error",
       message: error.message,
     });
+  }
+}
+
+// OWNER ANALYTICS
+export async function getOwnerAnalytics(req, res) {
+  try {
+    const { id } = req.params;
+    const missions = await Misi.findAll({ where: { id_pembuat: id } });
+    const totalMisi = missions.length;
+    const selesaiCount = missions.filter((m) => m.status_misi === "selesai").length;
+    const aktifCount = missions.filter((m) => m.status_misi === "aktif").length;
+    const belumCount = missions.filter((m) => m.status_misi === "belum diambil").length;
+
+    const misiIds = missions.map((m) => m.id_misi);
+    const logs = misiIds.length
+      ? await LogActivity.findAll({ where: { id_misi: { [Op.in]: misiIds } } })
+      : [];
+
+    const petualangSet = new Set(logs.map((log) => log.id_petualang));
+    const approvalStats = logs.reduce(
+      (acc, log) => {
+        if (log.status_approval === "approved") acc.approved += 1;
+        else if (log.status_approval === "rejected") acc.rejected += 1;
+        else acc.pending += 1;
+        return acc;
+      },
+      { approved: 0, rejected: 0, pending: 0 }
+    );
+
+    const completedMisi = missions.filter((m) => m.status_misi === "selesai");
+    const avgXp =
+      completedMisi.reduce((sum, m) => sum + (m.hadiah_xp || 0), 0) /
+      (completedMisi.length || 1);
+    const avgKoin =
+      completedMisi.reduce((sum, m) => sum + (m.hadiah_koin || 0), 0) /
+      (completedMisi.length || 1);
+
+    res.status(200).json({
+      data: {
+        total_misi: totalMisi,
+        selesai: selesaiCount,
+        aktif: aktifCount,
+        belum_diambil: belumCount,
+        completion_rate: totalMisi ? selesaiCount / totalMisi : 0,
+        petualang_terlibat: petualangSet.size,
+        approval: approvalStats,
+        avg_reward_xp: Number(avgXp.toFixed(1)),
+        avg_reward_koin: Number(avgKoin.toFixed(1)),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 }

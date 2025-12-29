@@ -11,6 +11,7 @@ const DetailMisi = () => {
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
     const [isTakingMission, setIsTakingMission] = useState(false);
+    const [participants, setParticipants] = useState([]);
 
     useEffect(() => {
         const fetchMisiDetail = async () => {
@@ -24,7 +25,16 @@ const DetailMisi = () => {
                 const res = await axios.get(`${BASE_URL}/misi/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setMisi(res.data.data || res.data);
+                const misiData = res.data.data || res.data;
+                setMisi(misiData);
+
+                if (misiData?.is_guild_misi) {
+                    const resParticipants = await axios.get(
+                        `${BASE_URL}/misi/${id}/participants`,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    setParticipants(resParticipants.data.data || []);
+                }
             } catch (error) {
                 setErrorMsg("Gagal mengambil detail misi.");
                 console.error(error);
@@ -72,7 +82,10 @@ const DetailMisi = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            if (resUpdateMisi.data.message !== "Status misi berhasil diperbarui") {
+            if (
+                resUpdateMisi.data.message !== "Status misi berhasil diperbarui" &&
+                resUpdateMisi.data.message !== "Petualang bergabung ke party misi"
+            ) {
                 setErrorMsg(resUpdateMisi.data.message || "Gagal update status misi.");
                 return;
             }
@@ -82,6 +95,14 @@ const DetailMisi = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMisi(resRefresh.data.data || resRefresh.data);
+
+            if (resRefresh.data?.data?.is_guild_misi || resRefresh.data?.is_guild_misi) {
+                const resParticipants = await axios.get(
+                    `${BASE_URL}/misi/${misi.id_misi}/participants`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                setParticipants(resParticipants.data.data || []);
+            }
 
         } catch (error) {
             setErrorMsg(error.response?.data?.message || "Gagal mengambil misi. Coba lagi nanti.");
@@ -93,7 +114,13 @@ const DetailMisi = () => {
 
     const petualangId = Number(localStorage.getItem("id_petualang") || 0);
     const assignedId = Number(misi?.id_petualang_ambil ?? misi?.id_petualang ?? 0);
-    const canPlayQuest = misi?.status_misi === "aktif" && petualangId && assignedId === petualangId;
+    const isMember = participants.some(
+        (participant) => Number(participant.id_petualang) === petualangId
+    );
+    const canPlayQuest =
+        misi?.status_misi === "aktif" &&
+        petualangId &&
+        (misi?.is_guild_misi ? isMember : assignedId === petualangId);
 
     if (loading) return (
         <div className="flex justify-center items-center h-screen bg-amber-50">
@@ -206,12 +233,24 @@ const DetailMisi = () => {
                                 </svg>
                                 <span>Level petualang minimal {misi.level_required}</span>
                             </li>
-                            <li className="flex items-center">
-                                <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span>Misi belum pernah diambil sebelumnya</span>
-                            </li>
+                            {!misi.is_guild_misi && (
+                                <li className="flex items-center">
+                                    <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span>Misi belum pernah diambil sebelumnya</span>
+                                </li>
+                            )}
+                            {misi.is_guild_misi && (
+                                <li className="flex items-center">
+                                    <svg className="w-4 h-4 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    <span>
+                                        Party misi: {participants.length}/{misi.max_participants || 1} petualang
+                                    </span>
+                                </li>
+                            )}
                         </ul>
                     </div>
 
@@ -228,7 +267,7 @@ const DetailMisi = () => {
                             </div>
                         )}
                         
-                        {misi.status_misi === "belum diambil" && (
+                        {misi.is_guild_misi && misi.status_misi !== "selesai" && !isMember && (
                             <button
                                 onClick={handleAmbilMisi}
                                 disabled={isTakingMission}
@@ -251,12 +290,40 @@ const DetailMisi = () => {
                                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    Ambil Misi Ini
+                                    Gabung Party Misi
                                 </>
                             )}
                             </button>
                         )}
 
+                        {!misi.is_guild_misi && misi.status_misi === "belum diambil" && (
+                            <button
+                                onClick={handleAmbilMisi}
+                                disabled={isTakingMission}
+                                className={`px-6 py-3 rounded-lg font-medium text-white shadow-md transition-all duration-300 flex items-center ${
+                                    isTakingMission
+                                        ? "bg-amber-400 cursor-not-allowed"
+                                        : "bg-amber-600 hover:bg-amber-700 hover:shadow-lg transform hover:-translate-y-1"
+                                }`}
+                            >
+                                {isTakingMission ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Memproses...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Ambil Misi Ini
+                                    </>
+                                )}
+                            </button>
+                        )}
                         {canPlayQuest && (
                             <button
                                 onClick={() => navigate(`/quest/${misi.id_misi}`)}

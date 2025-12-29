@@ -26,6 +26,10 @@ const Owner = sequelize.define(
     total_koin: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+    },
+    refresh_token: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     }
   },
   {

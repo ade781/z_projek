@@ -38,6 +38,26 @@ const Petualang = db.define(
             type: DataTypes.INTEGER,
             defaultValue: 0,
         },
+        refresh_token: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        streak_selesai: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        last_action_at: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        last_misi_ambil_at: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        last_completed_at: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
         created_at: {
             type: DataTypes.DATE,
             defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),

@@ -7,6 +7,11 @@ import DashboardPetualang from "../petualang/DashboardPetualang";
 import EditPetualang from "../petualang/EditPetualang";
 import DashboardMisiPetualang from "../petualang/DashboardMisiPetualang";
 import LeaderboardPetualang from "../petualang/LeaderboardPetualang";
+import Achievements from "../petualang/Achievements";
+import DailyWeeklyQuests from "../petualang/DailyWeeklyQuests";
+import GuildHall from "../petualang/GuildHall";
+import Inventory from "../petualang/Inventory";
+import Notifications from "../petualang/Notifications";
 
 const PetualangRoutes = () => (
   <>
@@ -55,6 +60,46 @@ const PetualangRoutes = () => (
       element={
         <LayoutPetualang>
           <LeaderboardPetualang />
+        </LayoutPetualang>
+      }
+    />
+    <Route
+      path="/achievements"
+      element={
+        <LayoutPetualang>
+          <Achievements />
+        </LayoutPetualang>
+      }
+    />
+    <Route
+      path="/daily-quests"
+      element={
+        <LayoutPetualang>
+          <DailyWeeklyQuests />
+        </LayoutPetualang>
+      }
+    />
+    <Route
+      path="/guild-hall"
+      element={
+        <LayoutPetualang>
+          <GuildHall />
+        </LayoutPetualang>
+      }
+    />
+    <Route
+      path="/inventory"
+      element={
+        <LayoutPetualang>
+          <Inventory />
+        </LayoutPetualang>
+      }
+    />
+    <Route
+      path="/notifications"
+      element={
+        <LayoutPetualang>
+          <Notifications />
         </LayoutPetualang>
       }
     />

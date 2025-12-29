@@ -103,6 +103,13 @@ const SideBarOwner = ({ setFilterStatus }) => {
                                 <span className="w-2 h-2 rounded-full bg-green-400 mr-2"></span>
                                 Misi Selesai
                             </button>
+                            <button
+                                onClick={() => setFilterStatus("batal")}
+                                className="w-full text-left px-3 py-2 rounded hover:bg-indigo-700 transition-all text-sm flex items-center"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-red-400 mr-2"></span>
+                                Misi Batal
+                            </button>
                         </div>
                     )}
                 </div>
@@ -141,6 +148,42 @@ const SideBarOwner = ({ setFilterStatus }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <span>Daftar Petualang</span>
+                </NavLink>
+
+                <NavLink
+                    to="/review-center"
+                    className={({ isActive }) =>
+                        `flex items-center space-x-2 p-3 rounded-lg transition-all ${isActive ? 'bg-yellow-600 text-white font-bold shadow-md' : 'hover:bg-indigo-700 text-indigo-100'}`
+                    }
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Review Misi</span>
+                </NavLink>
+
+                <NavLink
+                    to="/request-misi-warga"
+                    className={({ isActive }) =>
+                        `flex items-center space-x-2 p-3 rounded-lg transition-all ${isActive ? 'bg-yellow-600 text-white font-bold shadow-md' : 'hover:bg-indigo-700 text-indigo-100'}`
+                    }
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
+                    </svg>
+                    <span>Request Warga</span>
+                </NavLink>
+
+                <NavLink
+                    to="/analytics"
+                    className={({ isActive }) =>
+                        `flex items-center space-x-2 p-3 rounded-lg transition-all ${isActive ? 'bg-yellow-600 text-white font-bold shadow-md' : 'hover:bg-indigo-700 text-indigo-100'}`
+                    }
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3v18m4-14v14m4-10v10M7 9v12M3 13v8" />
+                    </svg>
+                    <span>Analitik Guild</span>
                 </NavLink>
             </nav>
 

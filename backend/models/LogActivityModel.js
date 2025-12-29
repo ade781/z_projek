@@ -43,6 +43,10 @@ const LogActivity = db.define(
             type: DataTypes.TEXT,
             allowNull: true,
         },
+        alasan_penolakan: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
         summary_ai: {
             type: DataTypes.TEXT,
             allowNull: true,

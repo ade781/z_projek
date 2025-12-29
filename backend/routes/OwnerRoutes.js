@@ -6,7 +6,8 @@ import {
     deleteOwner,
     getOwnerById,
     loginOwner,
-    logoutOwner
+    logoutOwner,
+    getOwnerAnalytics
 } from "../controllers/OwnerController.js";
 
 import { refreshToken } from "../controllers/RefreshToken.js";
@@ -19,6 +20,7 @@ router.get('/token', refreshToken);
 router.post('/login', loginOwner);
 router.delete('/logout', logoutOwner);
 
+router.get('/analytics/:id', verifyToken, getOwnerAnalytics);
 router.get('/', verifyToken, getOwners);
 router.get('/:id', verifyToken, getOwnerById);
 router.post('/add-owner', createOwner);   // <-- POST /owner untuk create owner

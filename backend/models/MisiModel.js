@@ -30,8 +30,16 @@ const Misi = db.define(
       defaultValue: 1,
     },
     status_misi: {
-      type: DataTypes.ENUM("belum diambil", "aktif", "selesai"),
+      type: DataTypes.ENUM("belum diambil", "aktif", "batal", "selesai"),
       defaultValue: "belum diambil",
+    },
+    is_guild_misi: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    max_participants: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
     },
 
     id_pembuat: {

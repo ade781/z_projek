@@ -21,7 +21,7 @@ const DashboardMisiPetualang = () => {
             }
 
             try {
-                const res = await axios.get(`${BASE_URL}/logactivity/${id_petualang}`, {
+                const res = await axios.get(`${BASE_URL}/logactivity/petualang/${id_petualang}`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                     }
